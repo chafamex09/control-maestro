@@ -6,6 +6,7 @@
 <title>Control Maestro v11.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root {
   --bg:#05070a; --surface:#10141d; --surface2:#1b2230;
@@ -127,6 +128,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 <div class="panel active" id="panel-maestro">
   <input type="text" id="busqueda" class="field-input" placeholder="🔍 Buscar por nombre..." oninput="renderMaestro()">
 
+<button class="btn btn-outline" style="margin-bottom:14px; border-style:dashed;" onclick="descargarZip(null)">📦 ZIP TODOS LOS CLIENTES</button>
 <button class="btn btn-gold" style="margin-bottom:14px;" onclick="abrirFormCliente(null)">＋ NUEVO PRÉSTAMO DIRECTO</button>
 
   <div id="form-nuevo" class="box" style="display:none;border-color:var(--gold);">
@@ -162,6 +164,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
   <div class="sec-header" style="margin-top:6px;">
     <span class="sec-title">💳 CLIENTES DIRECTOS</span>
+    <button class="sec-btn" style="border-color:var(--muted); color:var(--text);" onclick="descargarZip('directos')">📦 ZIP DIRECTOS</button>
   </div>
   <div id="maestro-lista"></div>
 </div>
@@ -250,7 +253,6 @@ async function loadFromCloud() {
 
 function saveToCloud() {
   const dataStr = JSON.stringify({clientes, cobros, dealers});
-  // Se envía a Google Sheets en segundo plano
   fetch(CLOUD_URL, {
     method: 'POST',
     body: dataStr,
@@ -303,7 +305,7 @@ function save() {
     toast('Almacenamiento lleno','error'); return;
   }
   renderMaestro();
-  saveToCloud(); // <-- AGREGADO: Cada cambio se sube a Google Sheets
+  saveToCloud(); 
 }
 
 let data     = loadData();
@@ -519,6 +521,10 @@ function renderMaestro() {
               onclick="abrirFormCliente('${d.id}');event.stopPropagation()">
               + AGREGAR CLIENTE
             </button>
+            <button class="btn btn-outline" style="margin-top:7px;font-size:.78rem;color:var(--gold);border-color:var(--gold);"
+              onclick="descargarZip('${d.id}');event.stopPropagation()">
+              📦 DESCARGAR ZIP DEALER
+            </button>
             <button class="btn btn-outline" style="margin-top:7px;font-size:.78rem;color:var(--red);border-color:rgba(239,68,68,.2);"
               onclick="borrarDealer('${d.id}');event.stopPropagation()">
               ELIMINAR DEALER
@@ -633,6 +639,79 @@ function descargarImagenJPG() {
   }).catch(()=>toast('Error al generar imagen','error'));
 }
 
+// NUEVO: FUNCION DESCARGA MASIVA EN ZIP (Formato PNG)
+async function descargarZip(dealerId) {
+  let listaFiltrada = [];
+  let nombreZip = "Estados_De_Cuenta.zip";
+
+  if (dealerId === 'directos') {
+    listaFiltrada = clientes.filter(c => !c.dealerId);
+    nombreZip = "Clientes_Directos.zip";
+  } else if (dealerId) {
+    const d = dealers.find(x => x.id === dealerId);
+    listaFiltrada = clientes.filter(c => c.dealerId === dealerId);
+    nombreZip = `Dealer_${d ? d.nombre.replace(/\s/g, '_') : 'Desconocido'}.zip`;
+  } else {
+    listaFiltrada = [...clientes];
+    nombreZip = "Todos_Los_Clientes.zip";
+  }
+
+  if (listaFiltrada.length === 0) return toast('No hay clientes para generar', 'error');
+
+  // Pantalla de carga para evitar toques durante la generación
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(5,7,10,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);font-family:"Bebas Neue";font-size:2rem;';
+  ov.innerHTML = '<span>EMPAQUETANDO IMÁGENES...</span><span id="zip-progreso" style="font-size:3.5rem;color:#fff;margin-top:10px;">0 / ' + listaFiltrada.length + '</span>';
+  document.body.appendChild(ov);
+
+  const zip = new JSZip();
+  const folder = zip.folder("Estados_De_Cuenta");
+  
+  // Mostrar modal por debajo de la pantalla negra temporalmente
+  const modal = document.getElementById('modal-exp');
+  const estabaAbierto = modal.style.display === 'block';
+  const vistaAnteriorId = idActivo;
+  
+  modal.style.display = 'block';
+
+  let count = 0;
+  for (const c of listaFiltrada) {
+    verDetalle(c.id);
+    // Pequeña pausa para que el navegador procese el renderizado (fuentes, bordes)
+    await new Promise(r => setTimeout(r, 100));
+
+    const canvas = await html2canvas(document.getElementById('exp-capture-area'), {
+      backgroundColor: '#05070a', scale: 2, useCORS: true, logging: false
+    });
+
+    // Guardar imagen en PNG dentro del ZIP
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const nombreLimpio = c.nombre.replace(/[^a-zA-Z0-9]/g, '_');
+    folder.file(`Recibo_${nombreLimpio}.png`, blob);
+
+    count++;
+    document.getElementById('zip-progreso').innerText = count + ' / ' + listaFiltrada.length;
+  }
+
+  // Restaurar vista
+  if (!estabaAbierto) {
+    modal.style.display = 'none';
+  } else {
+    if (vistaAnteriorId) verDetalle(vistaAnteriorId);
+  }
+  document.body.removeChild(ov);
+
+  // Iniciar descarga del ZIP
+  toast('Descargando ZIP...');
+  const content = await zip.generateAsync({ type: "blob" });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(content);
+  link.download = nombreZip;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  toast('ZIP Descargado exitosamente');
+}
+
 function exportarBackup() {
   const dataStr = JSON.stringify({clientes,cobros,dealers});
   if (navigator.clipboard&&window.isSecureContext) {
@@ -703,7 +782,6 @@ function cerrarSesion() {
 }
 
 function initApp() {
-  // Establecer la fecha de hoy por defecto
   const dateInput = document.getElementById('reg-fecha');
   if (dateInput) {
     const today = new Date();
@@ -713,14 +791,10 @@ function initApp() {
     dateInput.value = `${yyyy}-${mm}-${dd}`;
   }
   
-  // Renderizar la lista
   renderMaestro();
-  
-  // <-- AGREGADO: Al entrar a la app, sincroniza automáticamente la nube
   loadFromCloud();
 }
 
-// Comprobar la sesión al cargar la página
 window.onload = () => {
   if (sessionStorage.getItem(SESSION_KEY) === '1') {
     document.getElementById('login-screen').style.display = 'none';
