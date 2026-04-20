@@ -112,6 +112,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 <div class="nav">
   <span class="nav-title">CONTROL MAESTRO</span>
   <div class="nav-actions">
+    <button class="nav-btn" onclick="loadFromCloud()" style="color:var(--gold); border-color:var(--gold);">↻ NUBE</button>
     <button class="nav-btn" onclick="exportarBackup()">RESPALDO</button>
     <button class="nav-btn danger" onclick="cerrarSesion()">SALIR</button>
   </div>
@@ -224,6 +225,39 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 </div>
 
 </div><script>
+// ─── GOOGLE SHEETS CLOUD SYNC CONFIG ──────────────────────────────────────────
+const CLOUD_URL = 'https://script.google.com/macros/s/AKfycby6mA0J9Grkti2sOVQpgXVl_EXH-XE4kmLkgoCEPLJadBxEeKI0ILZw7vdRp06DdnU5/exec';
+
+async function loadFromCloud() {
+  try {
+    toast('Descargando de Google Sheets...');
+    const resp = await fetch(CLOUD_URL);
+    const json = await resp.json();
+    if (json && json.clientes) {
+      localStorage.setItem(DB, JSON.stringify(json));
+      data = loadData();
+      clientes = data.clientes;
+      cobros = data.cobros;
+      dealers = data.dealers;
+      renderMaestro();
+      toast('Sincronizado con la nube ✅', 'success');
+    }
+  } catch(e) {
+    console.error("Error al cargar la nube:", e);
+    toast('Modo offline activado', 'error');
+  }
+}
+
+function saveToCloud() {
+  const dataStr = JSON.stringify({clientes, cobros, dealers});
+  // Se envía a Google Sheets en segundo plano
+  fetch(CLOUD_URL, {
+    method: 'POST',
+    body: dataStr,
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+  }).catch(e => console.error('Error guardando en la nube', e));
+}
+
 // ─── UTILIDADES ───────────────────────────────────────────────────────────────
 function norm(s) {
   return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
@@ -269,6 +303,7 @@ function save() {
     toast('Almacenamiento lleno','error'); return;
   }
   renderMaestro();
+  saveToCloud(); // <-- AGREGADO: Cada cambio se sube a Google Sheets
 }
 
 let data     = loadData();
@@ -668,7 +703,7 @@ function cerrarSesion() {
 }
 
 function initApp() {
-  // Establecer la fecha de hoy por defecto en el panel de cobranza
+  // Establecer la fecha de hoy por defecto
   const dateInput = document.getElementById('reg-fecha');
   if (dateInput) {
     const today = new Date();
@@ -678,8 +713,11 @@ function initApp() {
     dateInput.value = `${yyyy}-${mm}-${dd}`;
   }
   
-  // Renderizar la lista de clientes al iniciar
+  // Renderizar la lista
   renderMaestro();
+  
+  // <-- AGREGADO: Al entrar a la app, sincroniza automáticamente la nube
+  loadFromCloud();
 }
 
 // Comprobar la sesión al cargar la página
