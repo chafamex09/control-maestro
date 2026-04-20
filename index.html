@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Control Maestro v11.3</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --bg:#05070a; --surface:#10141d; --surface2:#1b2230;
+  --border:#262f45; --gold:#f0b429; --green:#10b981;
+  --red:#ef4444; --text:#f8fafc; --muted:#94a3b8; --blue:#3b82f6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding-bottom:80px;overflow-x:hidden;}
+.btn:active,.tab:active{transform:scale(0.97);filter:brightness(0.88);}
+
+.nav{background:rgba(16,20,29,0.95);backdrop-filter:blur(10px);padding:12px 15px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.nav-title{font-family:'Bebas Neue';font-size:1.5rem;color:var(--gold);letter-spacing:1px;white-space:nowrap;}
+.nav-actions{display:flex;gap:8px;}
+.nav-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:6px 13px;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;}
+.nav-btn.danger{border-color:rgba(239,68,68,0.35);color:var(--red);}
+
+.tabs{display:flex;background:var(--surface);padding:5px;margin:12px 15px;border-radius:14px;border:1px solid var(--border);}
+.tab{flex:1;padding:11px 4px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;border-radius:10px;color:var(--muted);cursor:pointer;transition:.2s;}
+.tab.active{background:var(--gold);color:#000;}
+
+.panel{display:none;padding:0 15px;animation:fadeIn .2s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;position:relative;transition:.2s;}
+.field-label{display:block;font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
+.field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:#fff;padding:12px;font-size:1rem;margin-bottom:14px;outline:none;transition:border-color .2s;}
+.field-input:focus{border-color:var(--gold);}
+
+.btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Bebas Neue';font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:.85rem;}
+
+.progress-badge{position:absolute;top:14px;right:14px;background:var(--gold);color:#000;font-family:'Bebas Neue';padding:2px 12px;border-radius:8px;font-size:1.05rem;}
+
+.sec-header{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;}
+.sec-title{font-family:'Bebas Neue';font-size:1.15rem;color:var(--muted);letter-spacing:1px;}
+.sec-btn{background:transparent;border:1px solid var(--border);color:var(--gold);border-radius:10px;padding:6px 14px;font-size:.73rem;font-weight:700;cursor:pointer;}
+
+/* DEALER */
+.dealer-block{background:var(--surface);border:1px solid rgba(59,130,246,0.45);border-radius:16px;margin-bottom:14px;overflow:hidden;}
+.dealer-header{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;cursor:pointer;user-select:none;}
+.dealer-name{font-family:'Bebas Neue';font-size:1.25rem;color:var(--blue);letter-spacing:.5px;}
+.dealer-meta{display:flex;align-items:center;gap:10px;}
+.dealer-count{background:rgba(59,130,246,.18);color:var(--blue);font-family:'Bebas Neue';padding:2px 10px;border-radius:8px;font-size:.95rem;}
+.dealer-arrow{color:var(--muted);font-size:.85rem;transition:transform .25s;}
+.dealer-arrow.open{transform:rotate(180deg);}
+.dealer-body{display:none;border-top:1px solid rgba(59,130,246,.2);padding:12px;}
+.dealer-body.open{display:block;}
+.sub-client{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;position:relative;cursor:pointer;transition:.15s;}
+.sub-client:active{transform:scale(0.98);}
+.sub-badge{position:absolute;top:12px;right:12px;background:var(--blue);color:#fff;font-family:'Bebas Neue';padding:1px 10px;border-radius:7px;font-size:.9rem;}
+
+/* TOAST */
+#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:30px;font-size:.82rem;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast.success{border-color:var(--green);color:var(--green);}
+#toast.error{border-color:var(--red);color:var(--red);}
+
+/* MODAL */
+#modal-exp{position:fixed;inset:0;z-index:200;background:var(--bg);padding:20px;overflow-y:auto;display:none;}
+.stat-box{padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);}
+.stat-val{font-family:'Bebas Neue';font-size:1.6rem;}
+#exp-capture-area{max-width:400px;margin:0 auto;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;}
+.login-logo{font-family:'Bebas Neue';font-size:2.8rem;color:var(--gold);letter-spacing:2px;text-align:center;line-height:1;margin-bottom:6px;}
+.login-sub{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:40px;}
+.login-box{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;}
+#login-error{display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;color:var(--red);font-size:.8rem;text-align:center;padding:10px;margin-bottom:15px;}
+.login-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:4px;}
+.login-input-wrap{position:relative;}
+.login-input-wrap .field-input{margin-bottom:0;padding-right:44px;}
+.spacer{height:15px;}
+#app-wrapper{display:none;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-logo">CONTROL<br>MAESTRO</div>
+  <p class="login-sub">Sistema de Gestión de Préstamos</p>
+  <div class="login-box">
+    <div id="login-error">Usuario o contraseña incorrectos</div>
+    <label class="field-label">Usuario</label>
+    <input type="text" id="login-user" class="field-input" placeholder="Ingresa tu usuario" autocomplete="username">
+    <div class="spacer"></div>
+    <label class="field-label">Contraseña</label>
+    <div class="login-input-wrap">
+      <input type="password" id="login-pass" class="field-input" placeholder="Ingresa tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="login-eye" onclick="togglePass()" id="eye-btn">👁</button>
+    </div>
+    <div class="spacer"></div><div class="spacer"></div>
+    <button class="btn btn-gold" onclick="doLogin()">INGRESAR</button>
+  </div>
+</div>
+
+<div id="app-wrapper">
+<div id="toast"></div>
+
+<div class="nav">
+  <span class="nav-title">CONTROL MAESTRO</span>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="exportarBackup()">RESPALDO</button>
+    <button class="nav-btn danger" onclick="cerrarSesion()">SALIR</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('maestro',this)">Clientes</div>
+  <div class="tab" onclick="switchTab('registrar',this)">Cobranza</div>
+  <div class="tab" onclick="switchTab('migrar',this)">Migrar</div>
+</div>
+
+<div class="panel active" id="panel-maestro">
+  <input type="text" id="busqueda" class="field-input" placeholder="🔍 Buscar por nombre..." oninput="renderMaestro()">
+
+<button class="btn btn-gold" style="margin-bottom:14px;" onclick="abrirFormCliente(null)">＋ NUEVO PRÉSTAMO DIRECTO</button>
+
+  <div id="form-nuevo" class="box" style="display:none;border-color:var(--gold);">
+    <p id="form-nuevo-label" style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);margin-bottom:14px;">CLIENTE DIRECTO</p>
+    <label class="field-label">Nombre del Cliente</label>
+    <input type="text" id="n-nombre" class="field-input">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div><label class="field-label">Monto Préstamo</label><input type="number" id="n-monto" class="field-input" min="1"></div>
+      <div><label class="field-label">% Interés</label><input type="number" id="n-tasa" class="field-input" value="20" min="0"></div>
+    </div>
+    <label class="field-label">Pago Semanal Fijo <span style="color:var(--red)">*</span></label>
+    <input type="number" id="n-pago" class="field-input" min="1" placeholder="Requerido">
+    <input type="hidden" id="n-dealer-id" value="">
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-gold" onclick="crearCliente()">GUARDAR</button>
+      <button class="btn btn-outline" onclick="document.getElementById('form-nuevo').style.display='none'">CANCELAR</button>
+    </div>
+  </div>
+
+  <div class="sec-header">
+    <span class="sec-title">👥 DEALERS</span>
+    <button class="sec-btn" onclick="toggleElement('form-dealer')">＋ NUEVO DEALER</button>
+  </div>
+  <div id="form-dealer" class="box" style="display:none;border-color:var(--blue);">
+    <label class="field-label">Nombre del Dealer</label>
+    <input type="text" id="d-nombre" class="field-input" placeholder="Nombre del dealer" onkeydown="if(event.key==='Enter')crearDealer()">
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-blue" onclick="crearDealer()">GUARDAR DEALER</button>
+      <button class="btn btn-outline" onclick="toggleElement('form-dealer')">CANCELAR</button>
+    </div>
+  </div>
+  <div id="dealers-lista"></div>
+
+  <div class="sec-header" style="margin-top:6px;">
+    <span class="sec-title">💳 CLIENTES DIRECTOS</span>
+  </div>
+  <div id="maestro-lista"></div>
+</div>
+
+<div class="panel" id="panel-registrar">
+  <div class="box">
+    <label class="field-label">Fecha de operación</label>
+    <input type="date" id="reg-fecha" class="field-input">
+    <label class="field-label">Lista de Cobros: Nombre(monto)✅</label>
+    <textarea id="reg-lista" class="field-input" style="height:180px;font-family:monospace;font-size:.9rem;" placeholder="Ej: Juan(500)&#10;Maria(200)✅&#10;Esteban(300)✅"></textarea>
+    <p style="font-size:.68rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">Aplica a clientes directos y sub-clientes de dealers. Ignora acentos y mayúsculas/minúsculas.</p>
+    <button class="btn btn-gold" onclick="procesarCobros()">REGISTRAR SEMANA</button>
+  </div>
+</div>
+
+<div class="panel" id="panel-migrar">
+  <div class="box">
+    <h3 style="color:var(--gold);font-family:'Bebas Neue';margin-bottom:10px;font-size:1.5rem;">Importación Masiva</h3>
+    <p style="font-size:.7rem;color:var(--muted);margin-bottom:15px;line-height:1.4;">Formato: Nombre, Monto, %, Pago, SemanasPagadas</p>
+    <textarea id="migrar-area" class="field-input" style="height:180px;font-family:monospace;font-size:.8rem;" placeholder="Juan, 5000, 20, 500, 4"></textarea>
+    <button class="btn btn-gold" onclick="ejecutarMigracion()">PROCESAR LISTA</button>
+  </div>
+</div>
+
+<div id="modal-exp">
+  <div id="edit-form" class="box" style="display:none;border-color:var(--gold);margin-bottom:20px;">
+    <label class="field-label">Editar Nombre</label>
+    <input type="text" id="edit-nombre" class="field-input">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div><label class="field-label">Pago Semanal</label><input type="number" id="edit-pago" class="field-input" min="1"></div>
+      <div><label class="field-label">Total c/ Int</label><input type="number" id="edit-total" class="field-input" min="1"></div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-gold" onclick="guardarEdicion()">APLICAR</button>
+      <button class="btn btn-outline" onclick="toggleElement('edit-form')">CANCELAR</button>
+    </div>
+  </div>
+
+  <div id="exp-capture-area" style="padding:25px;background:#05070a;border-radius:24px;border:1px solid var(--border);">
+    <div style="display:flex;justify-content:space-between;align-items:start;">
+      <div>
+        <p id="exp-dealer-tag" style="font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:2px;color:var(--blue);display:none;"></p>
+        <p style="color:var(--gold);font-size:.7rem;font-weight:700;text-transform:uppercase;margin-bottom:2px;">Estado de Cuenta</p>
+        <h2 id="exp-nombre" style="font-family:'Bebas Neue';font-size:2.3rem;color:#fff;line-height:1;">---</h2>
+      </div>
+      <div id="exp-badge" style="background:var(--gold);color:#000;font-family:'Bebas Neue';padding:4px 12px;border-radius:8px;font-size:1.3rem;">0/0</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px;">
+      <div class="stat-box"><label class="field-label">Saldo Pendiente</label><div class="stat-val" id="exp-restante" style="color:var(--red)">$0</div></div>
+      <div class="stat-box"><label class="field-label">Total Pagado</label><div class="stat-val" id="exp-pagado" style="color:var(--green)">$0</div></div>
+    </div>
+    <div id="exp-historial" style="margin-top:22px;border-top:1px solid var(--border);"></div>
+    <p style="text-align:center;color:var(--muted);font-size:.6rem;margin-top:20px;text-transform:uppercase;letter-spacing:1px;">Comprobante Digital · Control Maestro</p>
+  </div>
+
+<button class="btn btn-gold" style="margin-top:22px;" onclick="descargarImagenJPG()">📸 DESCARGAR RECIBO</button>
+<button class="btn btn-outline" style="margin-top:10px;" onclick="abrirEdicion()">✏️ EDITAR DATOS</button>
+<button class="btn btn-outline" style="margin-top:10px;" onclick="cerrarExp()">VOLVER AL INICIO</button>
+<button class="btn btn-outline" style="margin-top:40px;color:var(--red);border-color:rgba(239,68,68,.2);" onclick="borrarCliente()">ELIMINAR CLIENTE</button>
+
+</div>
+
+</div><script>
+// ─── UTILIDADES ───────────────────────────────────────────────────────────────
+function norm(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+}
+
+const fmt = n => (!isFinite(n)||isNaN(n)) ? '$-' : '$'+Math.round(n).toLocaleString('es-MX');
+
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'show '+type;
+  clearTimeout(el._t); el._t = setTimeout(()=>{ el.className=''; }, 3400);
+}
+
+function toggleElement(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display==='none' ? 'block' : 'none';
+}
+
+function generarID(pre='ID') {
+  return pre+'-'+Date.now()+'-'+Math.floor(Math.random()*9999);
+}
+
+// ─── DATA ──────────────────────────────────────────────────────────────────────
+const DB = 'cm_v113_db';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(DB);
+    if (!raw) return { clientes:[], cobros:{}, dealers:[] };
+    const d = JSON.parse(raw);
+    if (!d.dealers) d.dealers = [];
+    return d;
+  } catch(e) {
+    toast('Error al leer datos','error');
+    return { clientes:[], cobros:{}, dealers:[] };
+  }
+}
+
+function save() {
+  try {
+    localStorage.setItem(DB, JSON.stringify({ clientes, cobros, dealers }));
+  } catch(e) {
+    toast('Almacenamiento lleno','error'); return;
+  }
+  renderMaestro();
+}
+
+let data     = loadData();
+let clientes = data.clientes;
+let cobros   = data.cobros;
+let dealers  = data.dealers;
+let idActivo = null;
+
+// ─── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(t, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  el.classList.add('active');
+}
+
+// ─── DEALERS ──────────────────────────────────────────────────────────────────
+function crearDealer() {
+  const n = document.getElementById('d-nombre').value.trim();
+  if (!n) return toast('El nombre es obligatorio','error');
+  if (dealers.some(d=>norm(d.nombre)===norm(n)))
+    return toast('Ya existe un dealer con ese nombre','error');
+  dealers.push({ id: generarID('DLR'), nombre: n });
+  save();
+  document.getElementById('d-nombre').value = '';
+  document.getElementById('form-dealer').style.display = 'none';
+  toast('Dealer creado');
+}
+
+function borrarDealer(dealerId) {
+  if (!confirm('Eliminar este dealer? Sus clientes quedarán como directos.')) return;
+  clientes.forEach(c=>{ if(c.dealerId===dealerId) delete c.dealerId; });
+  const idx = dealers.findIndex(d=>d.id===dealerId);
+  if (idx !== -1) dealers.splice(idx,1);
+  save();
+  toast('Dealer eliminado');
+}
+
+function toggleDealer(id) {
+  const body  = document.getElementById('body-'+id);
+  const arrow = document.getElementById('arrow-'+id);
+  const open  = body.classList.toggle('open');
+  arrow.classList.toggle('open', open);
+}
+
+// ─── CLIENTES ─────────────────────────────────────────────────────────────────
+function abrirFormCliente(dealerId) {
+  document.getElementById('n-dealer-id').value = dealerId || '';
+  const lbl = document.getElementById('form-nuevo-label');
+  if (dealerId) {
+    const d = dealers.find(x=>x.id===dealerId);
+    lbl.textContent = 'CLIENTE DE: '+(d ? d.nombre.toUpperCase() : '');
+    lbl.style.color = 'var(--blue)';
+  } else {
+    lbl.textContent = 'CLIENTE DIRECTO';
+    lbl.style.color = 'var(--gold)';
+  }
+  const form = document.getElementById('form-nuevo');
+  form.style.display = 'block';
+  form.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  document.getElementById('n-nombre').focus();
+}
+
+function crearCliente() {
+  const n   = document.getElementById('n-nombre').value.trim();
+  const m   = parseFloat(document.getElementById('n-monto').value);
+  const t   = parseFloat(document.getElementById('n-tasa').value)||0;
+  const p   = parseFloat(document.getElementById('n-pago').value);
+  const did = document.getElementById('n-dealer-id').value || null;
+
+  if (!n)       return toast('El nombre es obligatorio','error');
+  if (!m||m<=0) return toast('El monto debe ser mayor a 0','error');
+  if (!p||p<=0) return toast('El pago semanal es obligatorio','error');
+
+  const obj = {
+    id: generarID(), nombre: n, montoBase: m, tasa: t,
+    totalConInteres: m+(m*(t/100)),
+    pagoSemanal: p, semanasBase: 0
+  };
+  if (did) obj.dealerId = did;
+  clientes.push(obj);
+  save();
+  document.getElementById('form-nuevo').style.display = 'none';
+  ['n-nombre','n-monto','n-pago'].forEach(id=>document.getElementById(id).value='');
+  toast('Cliente guardado');
+}
+
+// ─── COBROS ───────────────────────────────────────────────────────────────────
+function getWeekID(d) {
+  d = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+  const ys = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return `${d.getUTCFullYear()}-W${Math.ceil((((d-ys)/86400000)+1)/7)}`;
+}
+
+function procesarCobros() {
+  const f = document.getElementById('reg-fecha').value;
+  if (!f) return toast('Selecciona una fecha','error');
+  const dObj = new Date(f+'T00:00:00');
+  const sId  = getWeekID(dObj);
+  if (!cobros[sId]) cobros[sId]=[];
+
+  const lineas = document.getElementById('reg-lista').value
+    .split('\n').filter(l=>l.trim());
+  if (!lineas.length) return toast('La lista esta vacia','error');
+
+  let coinciden=0, noCoinciden=[], duplicados=0;
+  lineas.forEach(l=>{
+    const m      = l.match(/\(([^)]+)\)/);
+    const monto  = m ? parseFloat(m[1]) : 0;
+    const nom    = l.replace(/\([^)]+\)/,'').replace('✅','').trim();
+    const pagado = l.includes('✅');
+    const existe = clientes.some(c=>norm(c.nombre)===norm(nom));
+    if (!existe) noCoinciden.push(nom);
+    if (cobros[sId].some(p=>norm(p.nombre)===norm(nom))) duplicados++;
+    cobros[sId] = cobros[sId].filter(p=>norm(p.nombre)!==norm(nom));
+    cobros[sId].push({ nombre:nom, monto, pagado, fecha:f });
+    if (existe) coinciden++;
+  });
+
+  save();
+  document.getElementById('reg-lista').value='';
+  const fl = dObj.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  let msg = `${coinciden} cobro${coinciden!==1?'s':''} registrado${coinciden!==1?'s':''} — ${fl}`;
+  if (duplicados>0) msg += ` (${duplicados} actualizado${duplicados>1?'s':''})`;
+  toast(msg);
+  if (noCoinciden.length>0) {
+    setTimeout(()=>
+      toast(`Sin cliente: ${noCoinciden.slice(0,3).join(', ')}${noCoinciden.length>3?'...':''}`, 'error')
+    , 2000);
+  }
+}
+
+function ejecutarMigracion() {
+  const raw = document.getElementById('migrar-area').value.trim();
+  if (!raw) return;
+  let ok=0;
+  raw.split('\n').forEach(l=>{
+    const d=l.split(',').map(s=>s.trim());
+    if(d.length<2) return;
+    const m=parseFloat(d[1]),t=parseFloat(d[2])||0,p=parseFloat(d[3])||0;
+    if(!m||m<=0||p<=0) return;
+    clientes.push({
+      id:generarID(),nombre:d[0],montoBase:m,tasa:t,
+      totalConInteres:m+(m*(t/100)),pagoSemanal:p,semanasBase:parseInt(d[4])||0
+    });
+    ok++;
+  });
+  save();
+  document.getElementById('migrar-area').value='';
+  toast(`${ok} clientes importados`);
+  switchTab('maestro', document.querySelector('.tab'));
+}
+
+// ─── STATUS ───────────────────────────────────────────────────────────────────
+function obtenerStatus(c) {
+  let nuevas=0;
+  Object.values(cobros).forEach(sem=>{
+    sem.forEach(p=>{ if(norm(p.nombre)===norm(c.nombre)&&p.pagado) nuevas++; });
+  });
+  const pagadas  = (c.semanasBase||0)+nuevas;
+  const totalS   = c.pagoSemanal>0 ? Math.ceil(c.totalConInteres/c.pagoSemanal) : 1;
+  const montoPag = pagadas*c.pagoSemanal;
+  return {
+    prog: `${pagadas}/${totalS}`,
+    pagado: montoPag,
+    restante: Math.max(0, c.totalConInteres-montoPag)
+  };
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function clienteCard(c, isSub) {
+  const st  = obtenerStatus(c);
+  const cls = isSub ? 'sub-client' : 'box';
+  const bdg = isSub ? 'sub-badge'  : 'progress-badge';
+  return `<div class="${cls}" onclick="verDetalle('${c.id}')">
+    <div class="${bdg}">${st.prog}</div>
+    <h3 style="font-size:1rem;margin-right:62px;">${c.nombre}</h3>
+    <p style="font-size:.73rem;color:var(--muted);margin-top:4px;">
+      Pendiente: <span style="color:var(--red);font-weight:700;">${fmt(st.restante)}</span>
+    </p>
+  </div>`;
+}
+
+function renderMaestro() {
+  const b = norm(document.getElementById('busqueda').value);
+
+  // DEALERS
+  const dlEl = document.getElementById('dealers-lista');
+  const filtD = dealers.filter(d=>
+    !b || norm(d.nombre).includes(b) ||
+    clientes.filter(c=>c.dealerId===d.id).some(c=>norm(c.nombre).includes(b))
+  );
+
+  dlEl.innerHTML = filtD.length===0
+    ? `<p style="text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0 4px;">Sin dealers registrados</p>`
+    : filtD.map(d=>{
+        const subs    = clientes.filter(c=>c.dealerId===d.id&&(!b||norm(c.nombre).includes(b)));
+        const allSubs = clientes.filter(c=>c.dealerId===d.id);
+        return `<div class="dealer-block">
+          <div class="dealer-header" onclick="toggleDealer('${d.id}')">
+            <span class="dealer-name">${d.nombre}</span>
+            <div class="dealer-meta">
+              <span class="dealer-count">${allSubs.length} cliente${allSubs.length!==1?'s':''}</span>
+              <span class="dealer-arrow" id="arrow-${d.id}">▼</span>
+            </div>
+          </div>
+          <div class="dealer-body" id="body-${d.id}">
+            ${subs.length
+              ? subs.map(c=>clienteCard(c,true)).join('')
+              : '<p style="color:var(--muted);font-size:.8rem;text-align:center;padding:8px 0 4px;">Sin clientes aun</p>'}
+            <button class="btn btn-blue" style="margin-top:8px;font-size:.95rem;padding:11px;"
+              onclick="abrirFormCliente('${d.id}');event.stopPropagation()">
+              + AGREGAR CLIENTE
+            </button>
+            <button class="btn btn-outline" style="margin-top:7px;font-size:.78rem;color:var(--red);border-color:rgba(239,68,68,.2);"
+              onclick="borrarDealer('${d.id}');event.stopPropagation()">
+              ELIMINAR DEALER
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+
+  // CLIENTES DIRECTOS
+  const listEl  = document.getElementById('maestro-lista');
+  const directos = clientes.filter(c=>!c.dealerId&&(!b||norm(c.nombre).includes(b)));
+  listEl.innerHTML = directos.length===0
+    ? `<p style="text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0;">Sin clientes directos</p>`
+    : directos.map(c=>clienteCard(c,false)).join('');
+}
+
+// ─── DETALLE ──────────────────────────────────────────────────────────────────
+function verDetalle(id) {
+  idActivo = id;
+  const c  = clientes.find(x=>x.id===id);
+  if (!c) return;
+  const st = obtenerStatus(c);
+
+  document.getElementById('exp-nombre').textContent   = c.nombre;
+  document.getElementById('exp-badge').textContent    = st.prog;
+  document.getElementById('exp-pagado').textContent   = fmt(st.pagado);
+  document.getElementById('exp-restante').textContent = fmt(st.restante);
+
+  // Tag dealer
+  const tagEl = document.getElementById('exp-dealer-tag');
+  if (c.dealerId) {
+    const d = dealers.find(x=>x.id===c.dealerId);
+    tagEl.textContent  = 'Dealer: '+(d ? d.nombre : '');
+    tagEl.style.display = 'block';
+  } else {
+    tagEl.style.display = 'none';
+  }
+
+  let h = c.semanasBase>0
+    ? `<div style="padding:12px;color:var(--gold);border-bottom:1px solid var(--border);font-size:.75rem;">
+        CARGA INICIAL: ${c.semanasBase} SEMANAS (${fmt(c.semanasBase*c.pagoSemanal)})
+       </div>`
+    : '';
+
+  Object.keys(cobros).sort((a,b)=>b>a?1:-1).forEach(s=>{
+    cobros[s].forEach(p=>{
+      if (norm(p.nombre)===norm(c.nombre)) {
+        const semNum = s.split('-W')[1];
+        const montoEl = p.pagado
+          ? `<span style="color:var(--green);font-weight:700;">+ ${fmt(p.monto)} ✅</span>`
+          : `<span style="color:var(--muted);">Sin pago ❌</span>`;
+        h += `<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);font-size:.83rem;">
+          <span style="color:var(--muted)">Sem. ${semNum} (${p.fecha})</span>
+          ${montoEl}
+        </div>`;
+      }
+    });
+  });
+
+  document.getElementById('exp-historial').innerHTML = h ||
+    `<p style="padding:20px;text-align:center;color:var(--muted)">Sin abonos registrados</p>`;
+  document.getElementById('modal-exp').style.display  = 'block';
+  document.getElementById('edit-form').style.display  = 'none';
+}
+
+function abrirEdicion() {
+  const c = clientes.find(x=>x.id===idActivo);
+  if (!c) return;
+  document.getElementById('edit-nombre').value = c.nombre;
+  document.getElementById('edit-pago').value   = c.pagoSemanal;
+  document.getElementById('edit-total').value  = c.totalConInteres;
+  document.getElementById('edit-form').style.display = 'block';
+}
+
+function guardarEdicion() {
+  const c  = clientes.find(x=>x.id===idActivo);
+  if (!c) return;
+  const np = parseFloat(document.getElementById('edit-pago').value);
+  const nt = parseFloat(document.getElementById('edit-total').value);
+  if (!np||np<=0) return toast('Pago semanal debe ser mayor a 0','error');
+  if (!nt||nt<=0) return toast('Total debe ser mayor a 0','error');
+  const nn = document.getElementById('edit-nombre').value.trim();
+  c.nombre = nn||c.nombre;
+  c.pagoSemanal = np;
+  c.totalConInteres = nt;
+  save(); toggleElement('edit-form'); verDetalle(idActivo);
+  toast('Datos actualizados');
+}
+
+function cerrarExp() {
+  document.getElementById('modal-exp').style.display = 'none';
+  document.getElementById('edit-form').style.display = 'none';
+}
+
+function borrarCliente() {
+  if (!confirm('Eliminar este cliente y todos sus registros?')) return;
+  const idx = clientes.findIndex(x=>x.id===idActivo);
+  if (idx!==-1) clientes.splice(idx,1);
+  save(); cerrarExp(); toast('Cliente eliminado');
+}
+
+// ─── DESCARGA / BACKUP ────────────────────────────────────────────────────────
+function descargarImagenJPG() {
+  html2canvas(document.getElementById('exp-capture-area'),{
+    backgroundColor:'#05070a', scale:2, useCORS:true, logging:false
+  }).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = `Recibo_${document.getElementById('exp-nombre').textContent.replace(/\s/g,'_')}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg',.85);
+    link.click();
+    toast('Recibo descargado');
+  }).catch(()=>toast('Error al generar imagen','error'));
+}
+
+function exportarBackup() {
+  const dataStr = JSON.stringify({clientes,cobros,dealers});
+  if (navigator.clipboard&&window.isSecureContext) {
+    navigator.clipboard.writeText(dataStr)
+      .then(()=>toast('Respaldo copiado al portapapeles'))
+      .catch(()=>mostrarBackupPrompt(dataStr));
+  } else {
+    mostrarBackupPrompt(dataStr);
+  }
+}
+
+function mostrarBackupPrompt(dataStr) {
+  const ov  = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
+  const msg = document.createElement('p');
+  msg.textContent = 'Copia este texto y pegalo en WhatsApp o Notas para guardar tu respaldo.';
+  msg.style.cssText = 'color:#f0b429;font-size:.8rem;text-align:center;max-width:320px;';
+  const ta  = document.createElement('textarea');
+  ta.value  = dataStr;
+  ta.style.cssText = 'width:100%;max-width:320px;height:35vh;background:#1b2230;color:#fff;border:1px solid #f0b429;border-radius:10px;padding:10px;font-size:.65rem;resize:none;';
+  const btn = document.createElement('button');
+  btn.textContent = 'CERRAR';
+  btn.style.cssText = 'background:#f0b429;color:#000;border:none;padding:12px 30px;border-radius:10px;font-family:"Bebas Neue";font-size:1.1rem;cursor:pointer;';
+  btn.onclick = ()=>ov.remove();
+  ov.append(msg,ta,btn);
+  document.body.appendChild(ov);
+  ta.focus(); ta.select();
+}
+
+// ─── LOGIN / LOGOUT ───────────────────────────────────────────────────────────
+const CREDS = { user:'ControlMaestro', pass:'ControlMaestro$2026' };
+const SESSION_KEY = 'cm_session';
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  if (u===CREDS.user && p===CREDS.pass) {
+    document.getElementById('login-error').style.display = 'none';
+    sessionStorage.setItem(SESSION_KEY,'1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-wrapper').style.display  = 'block';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    const box = document.querySelector('.login-box');
+    box.style.animation = 'none'; box.offsetHeight;
+    box.style.animation = 'shake 0.4s ease';
+  }
+}
+
+function togglePass() {
+  const input = document.getElementById('login-pass');
+  const btn = document.getElementById('eye-btn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+function cerrarSesion() {
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.reload();
+}
+
+function initApp() {
+  // Establecer la fecha de hoy por defecto en el panel de cobranza
+  const dateInput = document.getElementById('reg-fecha');
+  if (dateInput) {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+  }
+  
+  // Renderizar la lista de clientes al iniciar
+  renderMaestro();
+}
+
+// Comprobar la sesión al cargar la página
+window.onload = () => {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-wrapper').style.display = 'block';
+    initApp();
+  }
+};
+</script>
+
+</body>
+</html>
