@@ -122,7 +122,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 <div class="tabs">
   <div class="tab active" onclick="switchTab('maestro',this)">Clientes</div>
   <div class="tab" onclick="switchTab('registrar',this)">Cobranza</div>
-  <div class="tab" onclick="switchTab('migrar',this)">Migrar</div>
+  <div class="tab" onclick="switchTab('migrar',this);renderDealerSelectMigrar()">Migrar</div>
 </div>
 
 <div class="panel active" id="panel-maestro">
@@ -184,6 +184,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <div class="box">
     <h3 style="color:var(--gold);font-family:'Bebas Neue';margin-bottom:10px;font-size:1.5rem;">Importación Masiva</h3>
     <p style="font-size:.7rem;color:var(--muted);margin-bottom:15px;line-height:1.4;">Formato: Nombre, Monto, %, Pago, SemanasPagadas</p>
+
+    <label class="field-label">Dealer de Destino</label>
+    <select id="migrar-dealer" class="field-input">
+      <option value="">Sin dealer (directo)</option>
+    </select>
+
+    <label class="field-label">¿Dealer nuevo? Créalo aquí</label>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <input type="text" id="migrar-nuevo-dealer" class="field-input" style="margin-bottom:0;" placeholder="Nombre del nuevo dealer...">
+      <button class="btn btn-blue" style="width:auto;padding:12px 16px;white-space:nowrap;" onclick="crearDealerMigrar()">+ CREAR</button>
+    </div>
+
     <textarea id="migrar-area" class="field-input" style="height:180px;font-family:monospace;font-size:.8rem;" placeholder="Juan, 5000, 20, 500, 4"></textarea>
     <button class="btn btn-gold" onclick="ejecutarMigracion()">PROCESAR LISTA</button>
   </div>
@@ -439,19 +451,50 @@ function procesarCobros() {
   }
 }
 
+function renderDealerSelectMigrar() {
+  const sel = document.getElementById('migrar-dealer');
+  if (!sel) return;
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Sin dealer (directo)</option>';
+  dealers.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.nombre;
+    sel.appendChild(opt);
+  });
+  if (actual) sel.value = actual;
+}
+
+function crearDealerMigrar() {
+  const n = document.getElementById('migrar-nuevo-dealer').value.trim();
+  if (!n) return toast('Escribe el nombre del dealer', 'error');
+  if (dealers.some(d => norm(d.nombre) === norm(n)))
+    return toast('Ya existe un dealer con ese nombre', 'error');
+  const nuevo = { id: generarID('DLR'), nombre: n };
+  dealers.push(nuevo);
+  save();
+  document.getElementById('migrar-nuevo-dealer').value = '';
+  renderDealerSelectMigrar();
+  document.getElementById('migrar-dealer').value = nuevo.id;
+  toast('Dealer creado y seleccionado ✅', 'success');
+}
+
 function ejecutarMigracion() {
   const raw = document.getElementById('migrar-area').value.trim();
   if (!raw) return;
+  const did = document.getElementById('migrar-dealer').value || null;
   let ok=0;
   raw.split('\n').forEach(l=>{
     const d=l.split(',').map(s=>s.trim());
     if(d.length<2) return;
     const m=parseFloat(d[1]),t=parseFloat(d[2])||0,p=parseFloat(d[3])||0;
     if(!m||m<=0||p<=0) return;
-    clientes.push({
+    const obj = {
       id:generarID(),nombre:d[0],montoBase:m,tasa:t,
       totalConInteres:m+(m*(t/100)),pagoSemanal:p,semanasBase:parseInt(d[4])||0
-    });
+    };
+    if (did) obj.dealerId = did;
+    clientes.push(obj);
     ok++;
   });
   save();
