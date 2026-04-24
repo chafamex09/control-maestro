@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Control Maestro v11.3</title>
+<title>Control Maestro v12.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -12,30 +12,36 @@
   --bg:#05070a; --surface:#10141d; --surface2:#1b2230;
   --border:#262f45; --gold:#f0b429; --green:#10b981;
   --red:#ef4444; --text:#f8fafc; --muted:#94a3b8; --blue:#3b82f6;
+  --purple:#8b5cf6;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding-bottom:80px;overflow-x:hidden;}
 .btn:active,.tab:active{transform:scale(0.97);filter:brightness(0.88);}
 
+/* NAV */
 .nav{background:rgba(16,20,29,0.95);backdrop-filter:blur(10px);padding:12px 15px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:8px;}
 .nav-title{font-family:'Bebas Neue';font-size:1.5rem;color:var(--gold);letter-spacing:1px;white-space:nowrap;}
 .nav-actions{display:flex;gap:8px;}
 .nav-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:6px 13px;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;}
 .nav-btn.danger{border-color:rgba(239,68,68,0.35);color:var(--red);}
 
+/* TABS — 4 tabs, font reducida para que entren */
 .tabs{display:flex;background:var(--surface);padding:5px;margin:12px 15px;border-radius:14px;border:1px solid var(--border);}
-.tab{flex:1;padding:11px 4px;text-align:center;font-size:0.72rem;font-weight:700;text-transform:uppercase;border-radius:10px;color:var(--muted);cursor:pointer;transition:.2s;}
+.tab{flex:1;padding:11px 2px;text-align:center;font-size:0.62rem;font-weight:700;text-transform:uppercase;border-radius:10px;color:var(--muted);cursor:pointer;transition:.2s;}
 .tab.active{background:var(--gold);color:#000;}
 
+/* PANELS */
 .panel{display:none;padding:0 15px;animation:fadeIn .2s ease;}
 .panel.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
+/* BOX */
 .box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;position:relative;transition:.2s;}
 .field-label{display:block;font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
 .field-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:#fff;padding:12px;font-size:1rem;margin-bottom:14px;outline:none;transition:border-color .2s;}
 .field-input:focus{border-color:var(--gold);}
 
+/* BUTTONS */
 .btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Bebas Neue';font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;}
 .btn-gold{background:var(--gold);color:#000;}
 .btn-blue{background:var(--blue);color:#fff;}
@@ -62,16 +68,32 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 .sub-badge{position:absolute;top:12px;right:12px;background:var(--blue);color:#fff;font-family:'Bebas Neue';padding:1px 10px;border-radius:7px;font-size:.9rem;}
 
 /* TOAST */
-#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:30px;font-size:.82rem;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;}
+#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:30px;font-size:.82rem;z-index:9990;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:92vw;text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #toast.success{border-color:var(--green);color:var(--green);}
 #toast.error{border-color:var(--red);color:var(--red);}
+#toast.info{border-color:var(--blue);color:var(--blue);}
 
-/* MODAL */
+/* MODAL DETALLE */
 #modal-exp{position:fixed;inset:0;z-index:200;background:var(--bg);padding:20px;overflow-y:auto;display:none;}
 .stat-box{padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);}
 .stat-val{font-family:'Bebas Neue';font-size:1.6rem;}
 #exp-capture-area{max-width:400px;margin:0 auto;}
+
+/* RESUMEN ADMIN */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;}
+.kpi-label{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.kpi-val{font-family:'Bebas Neue';font-size:1.55rem;line-height:1.1;}
+.kpi-sub{font-size:.65rem;color:var(--muted);margin-top:3px;}
+.progress-bar-wrap{background:var(--surface2);border-radius:99px;height:8px;margin-top:8px;overflow:hidden;}
+.progress-bar-fill{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .6s ease;}
+.week-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:.78rem;}
+.week-row:last-child{border-bottom:none;}
+.dealer-stat-card{background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:10px;}
+.dealer-stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:.7rem;text-align:center;margin-top:8px;}
+.dealer-stat-grid div p:first-child{color:var(--muted);margin-bottom:2px;}
+.dealer-stat-grid div p:last-child{font-weight:700;}
 
 /* LOGIN */
 #login-screen{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;}
@@ -89,17 +111,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo">CONTROL<br>MAESTRO</div>
   <p class="login-sub">Sistema de Gestión de Préstamos</p>
   <div class="login-box">
     <div id="login-error">Usuario o contraseña incorrectos</div>
     <label class="field-label">Usuario</label>
-    <input type="text" id="login-user" class="field-input" placeholder="Ingresa tu usuario" autocomplete="username">
+    <input type="text" id="login-user" class="field-input" placeholder="Ingresa tu usuario" autocomplete="username" maxlength="40">
     <div class="spacer"></div>
     <label class="field-label">Contraseña</label>
     <div class="login-input-wrap">
-      <input type="password" id="login-pass" class="field-input" placeholder="Ingresa tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" id="login-pass" class="field-input" placeholder="Ingresa tu contraseña" autocomplete="current-password" maxlength="60" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="login-eye" onclick="togglePass()" id="eye-btn">👁</button>
     </div>
     <div class="spacer"></div><div class="spacer"></div>
@@ -107,13 +130,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
+<!-- APP -->
 <div id="app-wrapper">
 <div id="toast"></div>
 
 <div class="nav">
   <span class="nav-title">CONTROL MAESTRO</span>
   <div class="nav-actions">
-    <button class="nav-btn" onclick="loadFromCloud()" style="color:var(--gold); border-color:var(--gold);">↻ NUBE</button>
+    <button class="nav-btn" onclick="loadFromCloud(true)" style="color:var(--gold);border-color:var(--gold);">↻ NUBE</button>
     <button class="nav-btn" onclick="exportarBackup()">RESPALDO</button>
     <button class="nav-btn danger" onclick="cerrarSesion()">SALIR</button>
   </div>
@@ -123,18 +147,22 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <div class="tab active" onclick="switchTab('maestro',this)">Clientes</div>
   <div class="tab" onclick="switchTab('registrar',this)">Cobranza</div>
   <div class="tab" onclick="switchTab('migrar',this);renderDealerSelectMigrar()">Migrar</div>
+  <div class="tab" onclick="switchTab('resumen',this);renderResumen()" style="color:var(--gold);">📊 Admin</div>
 </div>
 
+<!-- ── PANEL CLIENTES ─────────────────────────── -->
 <div class="panel active" id="panel-maestro">
-  <input type="text" id="busqueda" class="field-input" placeholder="🔍 Buscar por nombre..." oninput="renderMaestro()">
+  <input type="text" id="busqueda" class="field-input" placeholder="🔍 Buscar por nombre..." oninput="renderMaestro()" maxlength="60">
 
-<button class="btn btn-outline" style="margin-bottom:14px; border-style:dashed;" onclick="descargarZip(null)">📦 ZIP TODOS LOS CLIENTES</button>
-<button class="btn btn-gold" style="margin-bottom:14px;" onclick="abrirFormCliente(null)">＋ NUEVO PRÉSTAMO DIRECTO</button>
+  <button class="btn btn-outline" style="margin-bottom:14px;border-style:dashed;" onclick="descargarZip(null)">📦 ZIP TODOS LOS CLIENTES</button>
+  <button class="btn btn-gold" style="margin-bottom:14px;" onclick="abrirFormCliente(null)">＋ NUEVO PRÉSTAMO DIRECTO</button>
 
   <div id="form-nuevo" class="box" style="display:none;border-color:var(--gold);">
     <p id="form-nuevo-label" style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);margin-bottom:14px;">CLIENTE DIRECTO</p>
     <label class="field-label">Nombre del Cliente</label>
-    <input type="text" id="n-nombre" class="field-input">
+    <input type="text" id="n-nombre" class="field-input" maxlength="60">
+    <label class="field-label">Teléfono <span style="color:var(--muted);font-size:.6rem;">(opcional)</span></label>
+    <input type="tel" id="n-tel" class="field-input" placeholder="Ej: 555-123-4567" maxlength="20">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div><label class="field-label">Monto Préstamo</label><input type="number" id="n-monto" class="field-input" min="1"></div>
       <div><label class="field-label">% Interés</label><input type="number" id="n-tasa" class="field-input" value="20" min="0"></div>
@@ -154,7 +182,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
   <div id="form-dealer" class="box" style="display:none;border-color:var(--blue);">
     <label class="field-label">Nombre del Dealer</label>
-    <input type="text" id="d-nombre" class="field-input" placeholder="Nombre del dealer" onkeydown="if(event.key==='Enter')crearDealer()">
+    <input type="text" id="d-nombre" class="field-input" placeholder="Nombre del dealer" maxlength="60" onkeydown="if(event.key==='Enter')crearDealer()">
     <div style="display:flex;gap:10px;">
       <button class="btn btn-blue" onclick="crearDealer()">GUARDAR DEALER</button>
       <button class="btn btn-outline" onclick="toggleElement('form-dealer')">CANCELAR</button>
@@ -164,11 +192,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
   <div class="sec-header" style="margin-top:6px;">
     <span class="sec-title">💳 CLIENTES DIRECTOS</span>
-    <button class="sec-btn" style="border-color:var(--muted); color:var(--text);" onclick="descargarZip('directos')">📦 ZIP DIRECTOS</button>
+    <button class="sec-btn" style="border-color:var(--muted);color:var(--text);" onclick="descargarZip('directos')">📦 ZIP DIRECTOS</button>
   </div>
   <div id="maestro-lista"></div>
 </div>
 
+<!-- ── PANEL COBRANZA ─────────────────────────── -->
 <div class="panel" id="panel-registrar">
   <div class="box">
     <label class="field-label">Fecha de operación</label>
@@ -180,31 +209,37 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
+<!-- ── PANEL MIGRAR ───────────────────────────── -->
 <div class="panel" id="panel-migrar">
   <div class="box">
     <h3 style="color:var(--gold);font-family:'Bebas Neue';margin-bottom:10px;font-size:1.5rem;">Importación Masiva</h3>
     <p style="font-size:.7rem;color:var(--muted);margin-bottom:15px;line-height:1.4;">Formato: Nombre, Monto, %, Pago, SemanasPagadas</p>
-
     <label class="field-label">Dealer de Destino</label>
     <select id="migrar-dealer" class="field-input">
       <option value="">Sin dealer (directo)</option>
     </select>
-
     <label class="field-label">¿Dealer nuevo? Créalo aquí</label>
     <div style="display:flex;gap:10px;margin-bottom:14px;">
-      <input type="text" id="migrar-nuevo-dealer" class="field-input" style="margin-bottom:0;" placeholder="Nombre del nuevo dealer...">
+      <input type="text" id="migrar-nuevo-dealer" class="field-input" style="margin-bottom:0;" placeholder="Nombre del nuevo dealer..." maxlength="60">
       <button class="btn btn-blue" style="width:auto;padding:12px 16px;white-space:nowrap;" onclick="crearDealerMigrar()">+ CREAR</button>
     </div>
-
     <textarea id="migrar-area" class="field-input" style="height:180px;font-family:monospace;font-size:.8rem;" placeholder="Juan, 5000, 20, 500, 4"></textarea>
     <button class="btn btn-gold" onclick="ejecutarMigracion()">PROCESAR LISTA</button>
   </div>
 </div>
 
+<!-- ── PANEL RESUMEN ADMIN ────────────────────── -->
+<div class="panel" id="panel-resumen">
+  <div id="resumen-contenido"></div>
+</div>
+
+<!-- ── MODAL DETALLE CLIENTE ─────────────────── -->
 <div id="modal-exp">
   <div id="edit-form" class="box" style="display:none;border-color:var(--gold);margin-bottom:20px;">
     <label class="field-label">Editar Nombre</label>
-    <input type="text" id="edit-nombre" class="field-input">
+    <input type="text" id="edit-nombre" class="field-input" maxlength="60">
+    <label class="field-label">Teléfono</label>
+    <input type="tel" id="edit-tel" class="field-input" maxlength="20">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div><label class="field-label">Pago Semanal</label><input type="number" id="edit-pago" class="field-input" min="1"></div>
       <div><label class="field-label">Total c/ Int</label><input type="number" id="edit-total" class="field-input" min="1"></div>
@@ -217,12 +252,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
   <div id="exp-capture-area" style="padding:25px;background:#05070a;border-radius:24px;border:1px solid var(--border);">
     <div style="display:flex;justify-content:space-between;align-items:start;">
-      <div>
+      <div style="min-width:0;flex:1;margin-right:12px;">
         <p id="exp-dealer-tag" style="font-size:.65rem;font-weight:700;text-transform:uppercase;margin-bottom:2px;color:var(--blue);display:none;"></p>
         <p style="color:var(--gold);font-size:.7rem;font-weight:700;text-transform:uppercase;margin-bottom:2px;">Estado de Cuenta</p>
         <h2 id="exp-nombre" style="font-family:'Bebas Neue';font-size:2.3rem;color:#fff;line-height:1;">---</h2>
+        <p id="exp-tel" style="font-size:.72rem;color:var(--muted);margin-top:4px;display:none;"></p>
       </div>
-      <div id="exp-badge" style="background:var(--gold);color:#000;font-family:'Bebas Neue';padding:4px 12px;border-radius:8px;font-size:1.3rem;">0/0</div>
+      <div id="exp-badge" style="background:var(--gold);color:#000;font-family:'Bebas Neue';padding:4px 12px;border-radius:8px;font-size:1.3rem;white-space:nowrap;">0/0</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px;">
       <div class="stat-box"><label class="field-label">Saldo Pendiente</label><div class="stat-val" id="exp-restante" style="color:var(--red)">$0</div></div>
@@ -232,44 +268,52 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
     <p style="text-align:center;color:var(--muted);font-size:.6rem;margin-top:20px;text-transform:uppercase;letter-spacing:1px;">Comprobante Digital · Control Maestro</p>
   </div>
 
-<button class="btn btn-gold" style="margin-top:22px;" onclick="descargarImagenJPG()">📸 DESCARGAR RECIBO</button>
-<button class="btn btn-outline" style="margin-top:10px;" onclick="abrirEdicion()">✏️ EDITAR DATOS</button>
-<button class="btn btn-outline" style="margin-top:10px;" onclick="cerrarExp()">VOLVER AL INICIO</button>
-<button class="btn btn-outline" style="margin-top:40px;color:var(--red);border-color:rgba(239,68,68,.2);" onclick="borrarCliente()">ELIMINAR CLIENTE</button>
-
+  <button class="btn btn-gold" style="margin-top:22px;" onclick="descargarImagenJPG()">📸 DESCARGAR RECIBO</button>
+  <button class="btn btn-outline" style="margin-top:10px;" onclick="abrirEdicion()">✏️ EDITAR DATOS</button>
+  <button class="btn btn-outline" style="margin-top:10px;" onclick="cerrarExp()">VOLVER AL INICIO</button>
+  <button class="btn btn-outline" style="margin-top:40px;color:var(--red);border-color:rgba(239,68,68,.2);" onclick="borrarCliente()">ELIMINAR CLIENTE</button>
 </div>
 
-</div><script>
-// ─── GOOGLE SHEETS CLOUD SYNC CONFIG ──────────────────────────────────────────
+</div><!-- /app-wrapper -->
+
+<script>
+// ─── CLOUD SYNC ───────────────────────────────────────────────────────────────
 const CLOUD_URL = 'https://script.google.com/macros/s/AKfycby6mA0J9Grkti2sOVQpgXVl_EXH-XE4kmLkgoCEPLJadBxEeKI0ILZw7vdRp06DdnU5/exec';
 
-async function loadFromCloud() {
+// FIX: parámetro manual para confirmar antes de sobreescribir datos locales
+async function loadFromCloud(manual = false) {
+  if (manual && clientes.length > 0) {
+    if (!confirm('Esto reemplazará los datos locales con la versión de la nube.\n¿Continuar?')) return;
+  }
   try {
-    toast('Descargando de Google Sheets...');
+    toast('Sincronizando con la nube...', 'info');
     const resp = await fetch(CLOUD_URL);
     const json = await resp.json();
     if (json && json.clientes) {
       localStorage.setItem(DB, JSON.stringify(json));
-      data = loadData();
+      data    = loadData();
       clientes = data.clientes;
-      cobros = data.cobros;
-      dealers = data.dealers;
+      cobros   = data.cobros;
+      dealers  = data.dealers;
       renderMaestro();
       toast('Sincronizado con la nube ✅', 'success');
     }
   } catch(e) {
-    console.error("Error al cargar la nube:", e);
+    console.error('Error al cargar la nube:', e);
     toast('Modo offline activado', 'error');
   }
 }
 
 function saveToCloud() {
-  const dataStr = JSON.stringify({clientes, cobros, dealers});
+  const dataStr = JSON.stringify({ clientes, cobros, dealers });
   fetch(CLOUD_URL, {
     method: 'POST',
     body: dataStr,
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-  }).catch(e => console.error('Error guardando en la nube', e));
+  })
+  // FIX: toast diferido para no pisar el toast de la acción principal
+  .then(() => setTimeout(() => toast('☁️ Nube actualizada', 'info'), 2000))
+  .catch(e => { console.error('Error guardando en la nube:', e); toast('Sin conexión: cambio solo local', 'error'); });
 }
 
 // ─── UTILIDADES ───────────────────────────────────────────────────────────────
@@ -279,19 +323,23 @@ function norm(s) {
 
 const fmt = n => (!isFinite(n)||isNaN(n)) ? '$-' : '$'+Math.round(n).toLocaleString('es-MX');
 
-function toast(msg, type='success') {
+// FIX: type vacío por defecto → sin color especial (antes era 'success' en neutral)
+function toast(msg, type='') {
   const el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'show '+type;
-  clearTimeout(el._t); el._t = setTimeout(()=>{ el.className=''; }, 3400);
+  el.textContent = msg;
+  el.className = 'show' + (type ? ' '+type : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = ''; }, 3400);
 }
 
 function toggleElement(id) {
   const el = document.getElementById(id);
-  el.style.display = el.style.display==='none' ? 'block' : 'none';
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// FIX: unicidad reforzada con 5 dígitos aleatorios
 function generarID(pre='ID') {
-  return pre+'-'+Date.now()+'-'+Math.floor(Math.random()*9999);
+  return pre+'-'+Date.now()+'-'+Math.floor(Math.random()*99999);
 }
 
 // ─── DATA ──────────────────────────────────────────────────────────────────────
@@ -303,9 +351,10 @@ function loadData() {
     if (!raw) return { clientes:[], cobros:{}, dealers:[] };
     const d = JSON.parse(raw);
     if (!d.dealers) d.dealers = [];
+    if (!d.cobros)  d.cobros  = {};
     return d;
   } catch(e) {
-    toast('Error al leer datos','error');
+    toast('Error al leer datos', 'error');
     return { clientes:[], cobros:{}, dealers:[] };
   }
 }
@@ -314,13 +363,13 @@ function save() {
   try {
     localStorage.setItem(DB, JSON.stringify({ clientes, cobros, dealers }));
   } catch(e) {
-    toast('Almacenamiento lleno','error'); return;
+    toast('Almacenamiento lleno', 'error'); return;
   }
   renderMaestro();
-  saveToCloud(); 
+  saveToCloud();
 }
 
-let data     = loadData();
+let data    = loadData();
 let clientes = data.clientes;
 let cobros   = data.cobros;
 let dealers  = data.dealers;
@@ -328,8 +377,8 @@ let idActivo = null;
 
 // ─── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(t, el) {
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
   document.getElementById('panel-'+t).classList.add('active');
   el.classList.add('active');
 }
@@ -337,21 +386,24 @@ function switchTab(t, el) {
 // ─── DEALERS ──────────────────────────────────────────────────────────────────
 function crearDealer() {
   const n = document.getElementById('d-nombre').value.trim();
-  if (!n) return toast('El nombre es obligatorio','error');
-  if (dealers.some(d=>norm(d.nombre)===norm(n)))
-    return toast('Ya existe un dealer con ese nombre','error');
+  if (!n) return toast('El nombre es obligatorio', 'error');
+  if (dealers.some(d => norm(d.nombre) === norm(n)))
+    return toast('Ya existe un dealer con ese nombre', 'error');
   dealers.push({ id: generarID('DLR'), nombre: n });
   save();
   document.getElementById('d-nombre').value = '';
   document.getElementById('form-dealer').style.display = 'none';
-  toast('Dealer creado');
+  toast('Dealer creado', 'success');
 }
 
+// FIX: confirmación incluye nombre, y clientes quedan como directos (cobros se conservan)
 function borrarDealer(dealerId) {
-  if (!confirm('Eliminar este dealer? Sus clientes quedarán como directos.')) return;
-  clientes.forEach(c=>{ if(c.dealerId===dealerId) delete c.dealerId; });
-  const idx = dealers.findIndex(d=>d.id===dealerId);
-  if (idx !== -1) dealers.splice(idx,1);
+  const d = dealers.find(x => x.id === dealerId);
+  const nombre = d ? d.nombre : 'este dealer';
+  if (!confirm(`Eliminar a "${nombre}"?\nSus clientes quedarán como directos.`)) return;
+  clientes.forEach(c => { if (c.dealerId === dealerId) delete c.dealerId; });
+  const idx = dealers.findIndex(x => x.id === dealerId);
+  if (idx !== -1) dealers.splice(idx, 1);
   save();
   toast('Dealer eliminado');
 }
@@ -368,7 +420,7 @@ function abrirFormCliente(dealerId) {
   document.getElementById('n-dealer-id').value = dealerId || '';
   const lbl = document.getElementById('form-nuevo-label');
   if (dealerId) {
-    const d = dealers.find(x=>x.id===dealerId);
+    const d = dealers.find(x => x.id === dealerId);
     lbl.textContent = 'CLIENTE DE: '+(d ? d.nombre.toUpperCase() : '');
     lbl.style.color = 'var(--blue)';
   } else {
@@ -383,74 +435,103 @@ function abrirFormCliente(dealerId) {
 
 function crearCliente() {
   const n   = document.getElementById('n-nombre').value.trim();
+  const tel = document.getElementById('n-tel').value.trim();
   const m   = parseFloat(document.getElementById('n-monto').value);
-  const t   = parseFloat(document.getElementById('n-tasa').value)||0;
+  const t   = parseFloat(document.getElementById('n-tasa').value) || 0;
   const p   = parseFloat(document.getElementById('n-pago').value);
   const did = document.getElementById('n-dealer-id').value || null;
 
-  if (!n)       return toast('El nombre es obligatorio','error');
-  if (!m||m<=0) return toast('El monto debe ser mayor a 0','error');
-  if (!p||p<=0) return toast('El pago semanal es obligatorio','error');
+  if (!n)       return toast('El nombre es obligatorio', 'error');
+  if (!m||m<=0) return toast('El monto debe ser mayor a 0', 'error');
+  if (!p||p<=0) return toast('El pago semanal es obligatorio', 'error');
+  // FIX: validar nombres duplicados
+  if (clientes.some(c => norm(c.nombre) === norm(n)))
+    return toast('Ya existe un cliente con ese nombre', 'error');
 
   const obj = {
-    id: generarID(), nombre: n, montoBase: m, tasa: t,
-    totalConInteres: m+(m*(t/100)),
+    id: generarID(), nombre: n, telefono: tel,
+    montoBase: m, tasa: t,
+    totalConInteres: m + (m*(t/100)),
     pagoSemanal: p, semanasBase: 0
   };
   if (did) obj.dealerId = did;
   clientes.push(obj);
   save();
   document.getElementById('form-nuevo').style.display = 'none';
-  ['n-nombre','n-monto','n-pago'].forEach(id=>document.getElementById(id).value='');
-  toast('Cliente guardado');
+  ['n-nombre','n-tel','n-monto','n-pago'].forEach(id => document.getElementById(id).value = '');
+  toast('Cliente guardado', 'success');
 }
 
 // ─── COBROS ───────────────────────────────────────────────────────────────────
+// FIX: semana con zero-padding para ordenamiento correcto (W09 antes de W10)
 function getWeekID(d) {
-  d = new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
-  d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
-  const ys = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return `${d.getUTCFullYear()}-W${Math.ceil((((d-ys)/86400000)+1)/7)}`;
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const ys = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNum = String(Math.ceil((((d - ys) / 86400000) + 1) / 7)).padStart(2, '0');
+  return `${d.getUTCFullYear()}-W${weekNum}`;
 }
 
 function procesarCobros() {
   const f = document.getElementById('reg-fecha').value;
-  if (!f) return toast('Selecciona una fecha','error');
+  if (!f) return toast('Selecciona una fecha', 'error');
   const dObj = new Date(f+'T00:00:00');
   const sId  = getWeekID(dObj);
-  if (!cobros[sId]) cobros[sId]=[];
+  if (!cobros[sId]) cobros[sId] = [];
 
   const lineas = document.getElementById('reg-lista').value
-    .split('\n').filter(l=>l.trim());
-  if (!lineas.length) return toast('La lista esta vacia','error');
+    .split('\n').filter(l => l.trim());
+  if (!lineas.length) return toast('La lista está vacía', 'error');
 
-  let coinciden=0, noCoinciden=[], duplicados=0;
-  lineas.forEach(l=>{
+  let coinciden = 0, noCoinciden = [], duplicados = 0, sinMonto = [];
+
+  lineas.forEach(l => {
     const m      = l.match(/\(([^)]+)\)/);
     const monto  = m ? parseFloat(m[1]) : 0;
-    const nom    = l.replace(/\([^)]+\)/,'').replace('✅','').trim();
+    const nom    = l.replace(/\([^)]+\)/, '').replace('✅', '').trim();
     const pagado = l.includes('✅');
-    const existe = clientes.some(c=>norm(c.nombre)===norm(nom));
-    if (!existe) noCoinciden.push(nom);
-    if (cobros[sId].some(p=>norm(p.nombre)===norm(nom))) duplicados++;
-    cobros[sId] = cobros[sId].filter(p=>norm(p.nombre)!==norm(nom));
-    cobros[sId].push({ nombre:nom, monto, pagado, fecha:f });
-    if (existe) coinciden++;
+
+    if (!nom) return;
+
+    // FIX: advertir si está marcado pagado pero sin monto
+    if (pagado && (!monto || monto <= 0)) {
+      sinMonto.push(nom);
+    }
+
+    // FIX: asociar clienteId para búsqueda robusta por ID (no solo nombre)
+    const clienteEncontrado = clientes.find(c => norm(c.nombre) === norm(nom));
+    if (!clienteEncontrado) noCoinciden.push(nom);
+
+    if (cobros[sId].some(p => norm(p.nombre) === norm(nom))) duplicados++;
+    cobros[sId] = cobros[sId].filter(p => norm(p.nombre) !== norm(nom));
+
+    const entrada = { nombre: nom, monto, pagado, fecha: f };
+    if (clienteEncontrado) {
+      entrada.clienteId = clienteEncontrado.id;
+      coinciden++;
+    }
+    cobros[sId].push(entrada);
   });
 
   save();
-  document.getElementById('reg-lista').value='';
-  const fl = dObj.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('reg-lista').value = '';
+  const fl = dObj.toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' });
   let msg = `${coinciden} cobro${coinciden!==1?'s':''} registrado${coinciden!==1?'s':''} — ${fl}`;
-  if (duplicados>0) msg += ` (${duplicados} actualizado${duplicados>1?'s':''})`;
-  toast(msg);
-  if (noCoinciden.length>0) {
-    setTimeout(()=>
+  if (duplicados > 0) msg += ` (${duplicados} actualizado${duplicados>1?'s':''})`;
+  toast(msg, 'success');
+
+  if (sinMonto.length > 0) {
+    setTimeout(() =>
+      toast(`Sin monto: ${sinMonto.slice(0,3).join(', ')}${sinMonto.length>3?'...':''}`, 'error')
+    , 2000);
+  } else if (noCoinciden.length > 0) {
+    setTimeout(() =>
       toast(`Sin cliente: ${noCoinciden.slice(0,3).join(', ')}${noCoinciden.length>3?'...':''}`, 'error')
     , 2000);
   }
 }
 
+// ─── MIGRACIÓN ────────────────────────────────────────────────────────────────
 function renderDealerSelectMigrar() {
   const sel = document.getElementById('migrar-dealer');
   if (!sel) return;
@@ -479,54 +560,68 @@ function crearDealerMigrar() {
   toast('Dealer creado y seleccionado ✅', 'success');
 }
 
+// FIX: detección de duplicados en migración masiva
 function ejecutarMigracion() {
   const raw = document.getElementById('migrar-area').value.trim();
   if (!raw) return;
   const did = document.getElementById('migrar-dealer').value || null;
-  let ok=0;
-  raw.split('\n').forEach(l=>{
-    const d=l.split(',').map(s=>s.trim());
-    if(d.length<2) return;
-    const m=parseFloat(d[1]),t=parseFloat(d[2])||0,p=parseFloat(d[3])||0;
-    if(!m||m<=0||p<=0) return;
+  let ok = 0, dup = 0;
+  raw.split('\n').forEach(l => {
+    const d = l.split(',').map(s => s.trim());
+    if (d.length < 2) return;
+    const m = parseFloat(d[1]), t = parseFloat(d[2])||0, p = parseFloat(d[3])||0;
+    if (!m||m<=0||p<=0) return;
+    // FIX: saltar si ya existe un cliente con ese nombre
+    if (clientes.some(c => norm(c.nombre) === norm(d[0]))) { dup++; return; }
     const obj = {
-      id:generarID(),nombre:d[0],montoBase:m,tasa:t,
-      totalConInteres:m+(m*(t/100)),pagoSemanal:p,semanasBase:parseInt(d[4])||0
+      id: generarID(), nombre: d[0], telefono: '',
+      montoBase: m, tasa: t,
+      totalConInteres: m + (m*(t/100)),
+      pagoSemanal: p, semanasBase: parseInt(d[4])||0
     };
     if (did) obj.dealerId = did;
     clientes.push(obj);
     ok++;
   });
   save();
-  document.getElementById('migrar-area').value='';
-  toast(`${ok} clientes importados`);
+  document.getElementById('migrar-area').value = '';
+  let msg = `${ok} cliente${ok!==1?'s':''} importado${ok!==1?'s':''}`;
+  if (dup > 0) msg += ` · ${dup} duplicado${dup>1?'s':''} omitido${dup>1?'s':''}`;
+  toast(msg, ok > 0 ? 'success' : 'error');
   switchTab('maestro', document.querySelector('.tab'));
 }
 
 // ─── STATUS ───────────────────────────────────────────────────────────────────
+// FIX: busca por clienteId si está disponible; fallback a nombre para datos anteriores
 function obtenerStatus(c) {
-  let nuevas=0;
-  Object.values(cobros).forEach(sem=>{
-    sem.forEach(p=>{ if(norm(p.nombre)===norm(c.nombre)&&p.pagado) nuevas++; });
+  let nuevas = 0;
+  Object.values(cobros).forEach(sem => {
+    sem.forEach(p => {
+      const match = p.clienteId ? p.clienteId === c.id : norm(p.nombre) === norm(c.nombre);
+      if (match && p.pagado) nuevas++;
+    });
   });
-  const pagadas  = (c.semanasBase||0)+nuevas;
-  const totalS   = c.pagoSemanal>0 ? Math.ceil(c.totalConInteres/c.pagoSemanal) : 1;
-  const montoPag = pagadas*c.pagoSemanal;
+  const pagadas  = (c.semanasBase || 0) + nuevas;
+  const totalS   = c.pagoSemanal > 0 ? Math.ceil(c.totalConInteres / c.pagoSemanal) : 1;
+  const montoPag = pagadas * c.pagoSemanal;
   return {
     prog: `${pagadas}/${totalS}`,
     pagado: montoPag,
-    restante: Math.max(0, c.totalConInteres-montoPag)
+    restante: Math.max(0, c.totalConInteres - montoPag)
   };
 }
 
-// ─── RENDER ───────────────────────────────────────────────────────────────────
+// ─── RENDER CLIENTES ─────────────────────────────────────────────────────────
 function clienteCard(c, isSub) {
   const st  = obtenerStatus(c);
   const cls = isSub ? 'sub-client' : 'box';
   const bdg = isSub ? 'sub-badge'  : 'progress-badge';
+  const telHtml = c.telefono
+    ? `<p style="font-size:.7rem;color:var(--muted);margin-top:2px;">📞 ${c.telefono}</p>` : '';
   return `<div class="${cls}" onclick="verDetalle('${c.id}')">
     <div class="${bdg}">${st.prog}</div>
     <h3 style="font-size:1rem;margin-right:62px;">${c.nombre}</h3>
+    ${telHtml}
     <p style="font-size:.73rem;color:var(--muted);margin-top:4px;">
       Pendiente: <span style="color:var(--red);font-weight:700;">${fmt(st.restante)}</span>
     </p>
@@ -536,18 +631,17 @@ function clienteCard(c, isSub) {
 function renderMaestro() {
   const b = norm(document.getElementById('busqueda').value);
 
-  // DEALERS
-  const dlEl = document.getElementById('dealers-lista');
-  const filtD = dealers.filter(d=>
+  const dlEl  = document.getElementById('dealers-lista');
+  const filtD = dealers.filter(d =>
     !b || norm(d.nombre).includes(b) ||
-    clientes.filter(c=>c.dealerId===d.id).some(c=>norm(c.nombre).includes(b))
+    clientes.filter(c => c.dealerId === d.id).some(c => norm(c.nombre).includes(b))
   );
 
-  dlEl.innerHTML = filtD.length===0
+  dlEl.innerHTML = filtD.length === 0
     ? `<p style="text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0 4px;">Sin dealers registrados</p>`
-    : filtD.map(d=>{
-        const subs    = clientes.filter(c=>c.dealerId===d.id&&(!b||norm(c.nombre).includes(b)));
-        const allSubs = clientes.filter(c=>c.dealerId===d.id);
+    : filtD.map(d => {
+        const subs    = clientes.filter(c => c.dealerId===d.id && (!b||norm(c.nombre).includes(b)));
+        const allSubs = clientes.filter(c => c.dealerId === d.id);
         return `<div class="dealer-block">
           <div class="dealer-header" onclick="toggleDealer('${d.id}')">
             <span class="dealer-name">${d.nombre}</span>
@@ -558,7 +652,7 @@ function renderMaestro() {
           </div>
           <div class="dealer-body" id="body-${d.id}">
             ${subs.length
-              ? subs.map(c=>clienteCard(c,true)).join('')
+              ? subs.map(c => clienteCard(c, true)).join('')
               : '<p style="color:var(--muted);font-size:.8rem;text-align:center;padding:8px 0 4px;">Sin clientes aun</p>'}
             <button class="btn btn-blue" style="margin-top:8px;font-size:.95rem;padding:11px;"
               onclick="abrirFormCliente('${d.id}');event.stopPropagation()">
@@ -576,18 +670,236 @@ function renderMaestro() {
         </div>`;
       }).join('');
 
-  // CLIENTES DIRECTOS
-  const listEl  = document.getElementById('maestro-lista');
-  const directos = clientes.filter(c=>!c.dealerId&&(!b||norm(c.nombre).includes(b)));
-  listEl.innerHTML = directos.length===0
+  const listEl   = document.getElementById('maestro-lista');
+  const directos = clientes.filter(c => !c.dealerId && (!b||norm(c.nombre).includes(b)));
+  listEl.innerHTML = directos.length === 0
     ? `<p style="text-align:center;color:var(--muted);font-size:.8rem;padding:10px 0;">Sin clientes directos</p>`
-    : directos.map(c=>clienteCard(c,false)).join('');
+    : directos.map(c => clienteCard(c, false)).join('');
 }
 
-// ─── DETALLE ──────────────────────────────────────────────────────────────────
+// ─── RESUMEN ADMIN ────────────────────────────────────────────────────────────
+function computeAdminStats() {
+  const hoy       = new Date();
+  const semActual = getWeekID(hoy);
+  const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}`;
+
+  let capitalTotal = 0, totalConInt = 0, cobradoTotal = 0, pendienteTotal = 0;
+  let activos = 0, liquidados = 0;
+
+  clientes.forEach(c => {
+    capitalTotal += c.montoBase || 0;
+    totalConInt  += c.totalConInteres || 0;
+    const st = obtenerStatus(c);
+    cobradoTotal   += st.pagado;
+    pendienteTotal += st.restante;
+    if (st.restante > 0) activos++;
+    else liquidados++;
+  });
+
+  // Esta semana
+  const semCobros  = cobros[semActual] || [];
+  const semPagados = semCobros.filter(p => p.pagado);
+  const semMonto   = semPagados.reduce((acc, p) => acc + (p.monto || 0), 0);
+  const semNoPag   = semCobros.filter(p => !p.pagado);
+
+  // Este mes (por fecha del cobro)
+  let mesMonto = 0;
+  Object.values(cobros).forEach(sem => {
+    sem.forEach(p => {
+      if (p.pagado && p.fecha && p.fecha.startsWith(mesActual))
+        mesMonto += p.monto || 0;
+    });
+  });
+
+  // Últimas 6 semanas registradas (ordenadas desc)
+  const todasSemanas = Object.keys(cobros).sort((a, b) => b > a ? 1 : -1).slice(0, 6);
+  const semRecientes = todasSemanas.map(semId => {
+    const pagos   = cobros[semId] || [];
+    const pagados = pagos.filter(p => p.pagado);
+    const monto   = pagados.reduce((acc, p) => acc + (p.monto || 0), 0);
+    return { semId, total: pagos.length, pagados: pagados.length, monto };
+  });
+
+  // Por dealer — incluye detalle de semana actual
+  const dealerStats = dealers.map(d => {
+    const subs = clientes.filter(c => c.dealerId === d.id);
+    let capital = 0, cobrado = 0, pendiente = 0;
+    subs.forEach(c => {
+      capital  += c.montoBase || 0;
+      const st  = obtenerStatus(c);
+      cobrado   += st.pagado;
+      pendiente += st.restante;
+    });
+    const semD    = semCobros.filter(p => p.clienteId
+      ? subs.some(c => c.id === p.clienteId)
+      : subs.some(c => norm(c.nombre) === norm(p.nombre)));
+    const semPagD = semD.filter(p => p.pagado).length;
+    return { id: d.id, nombre: d.nombre, count: subs.length, capital, cobrado, pendiente, semPag: semPagD, semTot: semD.length };
+  });
+
+  // Directos
+  const dirList = clientes.filter(c => !c.dealerId);
+  let dirCapital = 0, dirCobrado = 0, dirPendiente = 0;
+  dirList.forEach(c => {
+    dirCapital  += c.montoBase || 0;
+    const st     = obtenerStatus(c);
+    dirCobrado  += st.pagado;
+    dirPendiente += st.restante;
+  });
+  const semDir    = semCobros.filter(p => p.clienteId
+    ? dirList.some(c => c.id === p.clienteId)
+    : dirList.some(c => norm(c.nombre) === norm(p.nombre)));
+  const semPagDir = semDir.filter(p => p.pagado).length;
+
+  // Clientes que no pagaron esta semana (con nombre)
+  const noPagaronNombres = semNoPag.map(p => p.nombre);
+
+  return {
+    capitalTotal, totalConInt, cobradoTotal, pendienteTotal,
+    activos, liquidados,
+    semActual, semPagados: semPagados.length, semTotal: semCobros.length, semMonto,
+    mesMonto, semRecientes, dealerStats, noPagaronNombres,
+    directos: { count: dirList.length, capital: dirCapital, cobrado: dirCobrado, pendiente: dirPendiente, semPag: semPagDir, semTot: semDir.length }
+  };
+}
+
+function renderResumen() {
+  const s   = computeAdminStats();
+  const pct = s.totalConInt > 0 ? Math.round((s.cobradoTotal / s.totalConInt) * 100) : 0;
+  const hoy = new Date().toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const semLabel = s.semActual ? s.semActual.split('-W')[1] : '--';
+  const mesLabel = new Date().toLocaleDateString('es-MX', { month:'long', year:'numeric' });
+
+  const html = `
+  <!-- ENCABEZADO -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:6px 0 16px;">
+    <div>
+      <p style="font-family:'Bebas Neue';font-size:1.55rem;color:var(--gold);letter-spacing:1px;line-height:1;">ESTADO GENERAL</p>
+      <p style="font-size:.63rem;color:var(--muted);text-transform:capitalize;margin-top:2px;">${hoy}</p>
+    </div>
+    <button onclick="renderResumen()" style="background:transparent;border:1px solid var(--border);color:var(--gold);border-radius:10px;padding:6px 14px;font-size:.73rem;font-weight:700;cursor:pointer;white-space:nowrap;">↻ ACTUALIZAR</button>
+  </div>
+
+  <!-- KPIs PRINCIPALES -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <p class="kpi-label">💰 Capital Prestado</p>
+      <p class="kpi-val" style="color:var(--text);">${fmt(s.capitalTotal)}</p>
+      <p class="kpi-sub">Con intereses: ${fmt(s.totalConInt)}</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">✅ Total Cobrado</p>
+      <p class="kpi-val" style="color:var(--green);">${fmt(s.cobradoTotal)}</p>
+      <p class="kpi-sub">${pct}% del portafolio</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">🔴 Pendiente</p>
+      <p class="kpi-val" style="color:var(--red);">${fmt(s.pendienteTotal)}</p>
+      <p class="kpi-sub">${100-pct}% restante</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-label">📅 ${mesLabel}</p>
+      <p class="kpi-val" style="color:var(--blue);">${fmt(s.mesMonto)}</p>
+      <p class="kpi-sub">Cobrado este mes</p>
+    </div>
+  </div>
+
+  <!-- BARRA DE PROGRESO GLOBAL -->
+  <div class="box" style="padding:16px;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;">Progreso Global</span>
+      <span style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);">${pct}%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:${pct}%;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:.72rem;">
+      <span>👥 <strong>${clientes.length}</strong> clientes</span>
+      <span style="color:var(--green);">🟢 <strong>${s.activos}</strong> activos</span>
+      <span style="color:var(--muted);">🏁 <strong>${s.liquidados}</strong> liquidados</span>
+    </div>
+  </div>
+
+  <!-- ESTA SEMANA -->
+  <div class="box" style="padding:16px;margin-bottom:14px;border-color:rgba(240,180,41,0.35);">
+    <p style="font-family:'Bebas Neue';font-size:1.15rem;color:var(--gold);margin-bottom:12px;">⚡ SEMANA ${semLabel} — COBROS</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:${s.noPagaronNombres.length>0?'14px':'0'};">
+      <div style="background:var(--surface2);border-radius:10px;padding:10px;">
+        <p style="font-family:'Bebas Neue';font-size:1.6rem;color:var(--green);">${s.semPagados}</p>
+        <p style="font-size:.6rem;color:var(--muted);text-transform:uppercase;">Pagaron</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:10px;">
+        <p style="font-family:'Bebas Neue';font-size:1.6rem;color:var(--red);">${s.semTotal - s.semPagados}</p>
+        <p style="font-size:.6rem;color:var(--muted);text-transform:uppercase;">Sin Pago</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:10px;padding:10px;">
+        <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);margin-top:4px;">${fmt(s.semMonto)}</p>
+        <p style="font-size:.6rem;color:var(--muted);text-transform:uppercase;">Cobrado</p>
+      </div>
+    </div>
+    ${s.noPagaronNombres.length > 0 ? `
+    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px;">
+      <p style="font-size:.65rem;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:6px;">❌ No pagaron esta semana</p>
+      <p style="font-size:.75rem;color:var(--muted);line-height:1.6;">${s.noPagaronNombres.join(' · ')}</p>
+    </div>` : ''}
+    ${s.semTotal === 0 ? '<p style="text-align:center;color:var(--muted);font-size:.75rem;padding:4px 0;">Sin registros esta semana aún</p>' : ''}
+  </div>
+
+  <!-- HISTORIAL SEMANAS RECIENTES -->
+  ${s.semRecientes.length > 0 ? `
+  <div class="box" style="padding:16px;margin-bottom:14px;">
+    <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--muted);letter-spacing:1px;margin-bottom:10px;">📈 SEMANAS RECIENTES</p>
+    ${s.semRecientes.map(sr => {
+      const semN   = sr.semId.split('-W')[1];
+      const pctS   = sr.total > 0 ? Math.round((sr.pagados/sr.total)*100) : 0;
+      const actual = sr.semId === s.semActual;
+      return `<div class="week-row">
+        <span style="font-weight:700;color:${actual?'var(--gold)':'var(--text)'};">Sem. ${semN}${actual?' ★':''}</span>
+        <span style="color:var(--muted);">${sr.pagados}/${sr.total} (${pctS}%)</span>
+        <span style="color:var(--green);font-weight:700;">${fmt(sr.monto)}</span>
+      </div>`;
+    }).join('')}
+  </div>` : ''}
+
+  <!-- POR DEALER -->
+  ${dealers.length > 0 ? `
+  <div class="box" style="padding:16px;margin-bottom:14px;">
+    <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--blue);letter-spacing:1px;margin-bottom:12px;">👥 POR DEALER</p>
+    ${s.dealerStats.map(d => `
+    <div class="dealer-stat-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--blue);">${d.nombre}</span>
+        <span style="font-size:.68rem;color:var(--muted);">${d.count} cliente${d.count!==1?'s':''} · Sem: ${d.semPag}/${d.semTot}</span>
+      </div>
+      <div class="dealer-stat-grid">
+        <div><p>Capital</p><p style="color:var(--text);">${fmt(d.capital)}</p></div>
+        <div><p>Cobrado</p><p style="color:var(--green);">${fmt(d.cobrado)}</p></div>
+        <div><p>Pendiente</p><p style="color:var(--red);">${fmt(d.pendiente)}</p></div>
+      </div>
+    </div>`).join('')}
+  </div>` : ''}
+
+  <!-- DIRECTOS -->
+  <div class="box" style="padding:16px;margin-bottom:14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);">💳 CLIENTES DIRECTOS</p>
+      <span style="font-size:.68rem;color:var(--muted);">${s.directos.count} cliente${s.directos.count!==1?'s':''} · Sem: ${s.directos.semPag}/${s.directos.semTot}</span>
+    </div>
+    <div class="dealer-stat-grid">
+      <div><p style="color:var(--muted);">Capital</p><p style="color:var(--text);font-weight:700;">${fmt(s.directos.capital)}</p></div>
+      <div><p style="color:var(--muted);">Cobrado</p><p style="color:var(--green);font-weight:700;">${fmt(s.directos.cobrado)}</p></div>
+      <div><p style="color:var(--muted);">Pendiente</p><p style="color:var(--red);font-weight:700;">${fmt(s.directos.pendiente)}</p></div>
+    </div>
+  </div>
+  `;
+
+  document.getElementById('resumen-contenido').innerHTML = html;
+}
+
+// ─── DETALLE CLIENTE ──────────────────────────────────────────────────────────
 function verDetalle(id) {
   idActivo = id;
-  const c  = clientes.find(x=>x.id===id);
+  const c  = clientes.find(x => x.id === id);
   if (!c) return;
   const st = obtenerStatus(c);
 
@@ -596,31 +908,42 @@ function verDetalle(id) {
   document.getElementById('exp-pagado').textContent   = fmt(st.pagado);
   document.getElementById('exp-restante').textContent = fmt(st.restante);
 
+  // Teléfono
+  const telEl = document.getElementById('exp-tel');
+  if (c.telefono) {
+    telEl.textContent = '📞 '+c.telefono;
+    telEl.style.display = 'block';
+  } else {
+    telEl.style.display = 'none';
+  }
+
   // Tag dealer
   const tagEl = document.getElementById('exp-dealer-tag');
   if (c.dealerId) {
-    const d = dealers.find(x=>x.id===c.dealerId);
-    tagEl.textContent  = 'Dealer: '+(d ? d.nombre : '');
+    const d = dealers.find(x => x.id === c.dealerId);
+    tagEl.textContent   = 'Dealer: '+(d ? d.nombre : '');
     tagEl.style.display = 'block';
   } else {
     tagEl.style.display = 'none';
   }
 
-  let h = c.semanasBase>0
+  let h = c.semanasBase > 0
     ? `<div style="padding:12px;color:var(--gold);border-bottom:1px solid var(--border);font-size:.75rem;">
         CARGA INICIAL: ${c.semanasBase} SEMANAS (${fmt(c.semanasBase*c.pagoSemanal)})
        </div>`
     : '';
 
-  Object.keys(cobros).sort((a,b)=>b>a?1:-1).forEach(s=>{
-    cobros[s].forEach(p=>{
-      if (norm(p.nombre)===norm(c.nombre)) {
+  // FIX: match por clienteId cuando disponible, fallback a nombre
+  Object.keys(cobros).sort((a, b) => b > a ? 1 : -1).forEach(s => {
+    cobros[s].forEach(p => {
+      const match = p.clienteId ? p.clienteId === c.id : norm(p.nombre) === norm(c.nombre);
+      if (match) {
         const semNum = s.split('-W')[1];
         const montoEl = p.pagado
           ? `<span style="color:var(--green);font-weight:700;">+ ${fmt(p.monto)} ✅</span>`
           : `<span style="color:var(--muted);">Sin pago ❌</span>`;
         h += `<div style="display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);font-size:.83rem;">
-          <span style="color:var(--muted)">Sem. ${semNum} (${p.fecha})</span>
+          <span style="color:var(--muted);">Sem. ${semNum} (${p.fecha})</span>
           ${montoEl}
         </div>`;
       }
@@ -628,33 +951,38 @@ function verDetalle(id) {
   });
 
   document.getElementById('exp-historial').innerHTML = h ||
-    `<p style="padding:20px;text-align:center;color:var(--muted)">Sin abonos registrados</p>`;
-  document.getElementById('modal-exp').style.display  = 'block';
-  document.getElementById('edit-form').style.display  = 'none';
+    `<p style="padding:20px;text-align:center;color:var(--muted);">Sin abonos registrados</p>`;
+  document.getElementById('modal-exp').style.display = 'block';
+  document.getElementById('edit-form').style.display = 'none';
 }
 
 function abrirEdicion() {
-  const c = clientes.find(x=>x.id===idActivo);
+  const c = clientes.find(x => x.id === idActivo);
   if (!c) return;
   document.getElementById('edit-nombre').value = c.nombre;
+  document.getElementById('edit-tel').value    = c.telefono || '';
   document.getElementById('edit-pago').value   = c.pagoSemanal;
   document.getElementById('edit-total').value  = c.totalConInteres;
   document.getElementById('edit-form').style.display = 'block';
 }
 
 function guardarEdicion() {
-  const c  = clientes.find(x=>x.id===idActivo);
+  const c  = clientes.find(x => x.id === idActivo);
   if (!c) return;
   const np = parseFloat(document.getElementById('edit-pago').value);
   const nt = parseFloat(document.getElementById('edit-total').value);
-  if (!np||np<=0) return toast('Pago semanal debe ser mayor a 0','error');
-  if (!nt||nt<=0) return toast('Total debe ser mayor a 0','error');
   const nn = document.getElementById('edit-nombre').value.trim();
-  c.nombre = nn||c.nombre;
-  c.pagoSemanal = np;
+  const nt2 = document.getElementById('edit-tel').value.trim();
+  if (!np||np<=0) return toast('Pago semanal debe ser mayor a 0', 'error');
+  if (!nt||nt<=0) return toast('Total debe ser mayor a 0', 'error');
+  c.nombre          = nn || c.nombre;
+  c.telefono        = nt2;
+  c.pagoSemanal     = np;
   c.totalConInteres = nt;
-  save(); toggleElement('edit-form'); verDetalle(idActivo);
-  toast('Datos actualizados');
+  save();
+  toggleElement('edit-form');
+  verDetalle(idActivo);
+  toast('Datos actualizados', 'success');
 }
 
 function cerrarExp() {
@@ -662,81 +990,89 @@ function cerrarExp() {
   document.getElementById('edit-form').style.display = 'none';
 }
 
+// FIX: confirmación con nombre + limpieza de cobros huérfanos
 function borrarCliente() {
-  if (!confirm('Eliminar este cliente y todos sus registros?')) return;
-  const idx = clientes.findIndex(x=>x.id===idActivo);
-  if (idx!==-1) clientes.splice(idx,1);
-  save(); cerrarExp(); toast('Cliente eliminado');
+  const c = clientes.find(x => x.id === idActivo);
+  if (!c) return;
+  if (!confirm(`¿Eliminar a "${c.nombre}" y todos sus registros de cobro?\nEsta acción no se puede deshacer.`)) return;
+
+  // Limpiar cobros asociados (por clienteId o por nombre)
+  Object.keys(cobros).forEach(semId => {
+    cobros[semId] = cobros[semId].filter(p => {
+      if (p.clienteId) return p.clienteId !== idActivo;
+      return norm(p.nombre) !== norm(c.nombre);
+    });
+    if (cobros[semId].length === 0) delete cobros[semId];
+  });
+
+  const idx = clientes.findIndex(x => x.id === idActivo);
+  if (idx !== -1) clientes.splice(idx, 1);
+  save();
+  cerrarExp();
+  toast('Cliente eliminado');
 }
 
 // ─── DESCARGA / BACKUP ────────────────────────────────────────────────────────
 function descargarImagenJPG() {
-  html2canvas(document.getElementById('exp-capture-area'),{
-    backgroundColor:'#05070a', scale:2, useCORS:true, logging:false
-  }).then(canvas=>{
+  html2canvas(document.getElementById('exp-capture-area'), {
+    backgroundColor: '#05070a', scale: 2, useCORS: true, logging: false
+  }).then(canvas => {
     const link = document.createElement('a');
     link.download = `Recibo_${document.getElementById('exp-nombre').textContent.replace(/\s/g,'_')}.jpg`;
-    link.href = canvas.toDataURL('image/jpeg',.85);
+    link.href = canvas.toDataURL('image/jpeg', .85);
+    // FIX: agregar al DOM para compatibilidad con Safari/móviles
+    document.body.appendChild(link);
     link.click();
-    toast('Recibo descargado');
-  }).catch(()=>toast('Error al generar imagen','error'));
+    document.body.removeChild(link);
+    toast('Recibo descargado', 'success');
+  }).catch(() => toast('Error al generar imagen', 'error'));
 }
 
-// NUEVO: FUNCION DESCARGA MASIVA EN ZIP (Formato PNG)
 async function descargarZip(dealerId) {
   let listaFiltrada = [];
-  let nombreZip = "Estados_De_Cuenta.zip";
+  let nombreZip = 'Estados_De_Cuenta.zip';
 
   if (dealerId === 'directos') {
     listaFiltrada = clientes.filter(c => !c.dealerId);
-    nombreZip = "Clientes_Directos.zip";
+    nombreZip = 'Clientes_Directos.zip';
   } else if (dealerId) {
     const d = dealers.find(x => x.id === dealerId);
     listaFiltrada = clientes.filter(c => c.dealerId === dealerId);
-    nombreZip = `Dealer_${d ? d.nombre.replace(/\s/g, '_') : 'Desconocido'}.zip`;
+    nombreZip = `Dealer_${d ? d.nombre.replace(/\s/g,'_') : 'Desconocido'}.zip`;
   } else {
     listaFiltrada = [...clientes];
-    nombreZip = "Todos_Los_Clientes.zip";
+    nombreZip = 'Todos_Los_Clientes.zip';
   }
 
   if (listaFiltrada.length === 0) return toast('No hay clientes para generar', 'error');
 
-  // Pantalla de carga para evitar toques durante la generación
   const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(5,7,10,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);font-family:"Bebas Neue";font-size:2rem;';
-  ov.innerHTML = '<span>EMPAQUETANDO IMÁGENES...</span><span id="zip-progreso" style="font-size:3.5rem;color:#fff;margin-top:10px;">0 / ' + listaFiltrada.length + '</span>';
+  ov.innerHTML = '<span>EMPAQUETANDO IMÁGENES...</span><span id="zip-progreso" style="font-size:3.5rem;color:#fff;margin-top:10px;">0 / '+listaFiltrada.length+'</span>';
   document.body.appendChild(ov);
 
-  const zip = new JSZip();
-  const folder = zip.folder("Estados_De_Cuenta");
-  
-  // Mostrar modal por debajo de la pantalla negra temporalmente
+  const zip    = new JSZip();
+  const folder = zip.folder('Estados_De_Cuenta');
+
   const modal = document.getElementById('modal-exp');
-  const estabaAbierto = modal.style.display === 'block';
+  const estabaAbierto   = modal.style.display === 'block';
   const vistaAnteriorId = idActivo;
-  
   modal.style.display = 'block';
 
   let count = 0;
   for (const c of listaFiltrada) {
     verDetalle(c.id);
-    // Pequeña pausa para que el navegador procese el renderizado (fuentes, bordes)
     await new Promise(r => setTimeout(r, 100));
-
     const canvas = await html2canvas(document.getElementById('exp-capture-area'), {
       backgroundColor: '#05070a', scale: 2, useCORS: true, logging: false
     });
-
-    // Guardar imagen en PNG dentro del ZIP
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
     const nombreLimpio = c.nombre.replace(/[^a-zA-Z0-9]/g, '_');
     folder.file(`Recibo_${nombreLimpio}.png`, blob);
-
     count++;
-    document.getElementById('zip-progreso').innerText = count + ' / ' + listaFiltrada.length;
+    document.getElementById('zip-progreso').innerText = count+' / '+listaFiltrada.length;
   }
 
-  // Restaurar vista
   if (!estabaAbierto) {
     modal.style.display = 'none';
   } else {
@@ -744,23 +1080,25 @@ async function descargarZip(dealerId) {
   }
   document.body.removeChild(ov);
 
-  // Iniciar descarga del ZIP
-  toast('Descargando ZIP...');
-  const content = await zip.generateAsync({ type: "blob" });
+  toast('Generando ZIP...', 'info');
+  const content = await zip.generateAsync({ type: 'blob' });
   const link = document.createElement('a');
   link.href = URL.createObjectURL(content);
   link.download = nombreZip;
+  // FIX: agregar al DOM antes de click (Safari/móviles)
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
   URL.revokeObjectURL(link.href);
-  toast('ZIP Descargado exitosamente');
+  toast('ZIP descargado exitosamente ✅', 'success');
 }
 
 function exportarBackup() {
-  const dataStr = JSON.stringify({clientes,cobros,dealers});
-  if (navigator.clipboard&&window.isSecureContext) {
+  const dataStr = JSON.stringify({ clientes, cobros, dealers });
+  if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(dataStr)
-      .then(()=>toast('Respaldo copiado al portapapeles'))
-      .catch(()=>mostrarBackupPrompt(dataStr));
+      .then(() => toast('Respaldo copiado al portapapeles', 'success'))
+      .catch(() => mostrarBackupPrompt(dataStr));
   } else {
     mostrarBackupPrompt(dataStr);
   }
@@ -770,7 +1108,7 @@ function mostrarBackupPrompt(dataStr) {
   const ov  = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
   const msg = document.createElement('p');
-  msg.textContent = 'Copia este texto y pegalo en WhatsApp o Notas para guardar tu respaldo.';
+  msg.textContent = 'Copia este texto y pégalo en WhatsApp o Notas para guardar tu respaldo.';
   msg.style.cssText = 'color:#f0b429;font-size:.8rem;text-align:center;max-width:320px;';
   const ta  = document.createElement('textarea');
   ta.value  = dataStr;
@@ -778,22 +1116,25 @@ function mostrarBackupPrompt(dataStr) {
   const btn = document.createElement('button');
   btn.textContent = 'CERRAR';
   btn.style.cssText = 'background:#f0b429;color:#000;border:none;padding:12px 30px;border-radius:10px;font-family:"Bebas Neue";font-size:1.1rem;cursor:pointer;';
-  btn.onclick = ()=>ov.remove();
-  ov.append(msg,ta,btn);
+  btn.onclick = () => ov.remove();
+  ov.append(msg, ta, btn);
   document.body.appendChild(ov);
   ta.focus(); ta.select();
 }
 
 // ─── LOGIN / LOGOUT ───────────────────────────────────────────────────────────
-const CREDS = { user:'ControlMaestro', pass:'ControlMaestro$2026' };
+// FIX: credenciales ofuscadas — no texto plano en código fuente.
+// Para producción real, la validación debe hacerse del lado del servidor.
+const _k1 = 'Q29udHJvbE1hZXN0cm8=';
+const _k2 = 'Q29udHJvbE1hZXN0cm8kMjAyNg==';
 const SESSION_KEY = 'cm_session';
 
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
-  if (u===CREDS.user && p===CREDS.pass) {
+  if (u === atob(_k1) && p === atob(_k2)) {
     document.getElementById('login-error').style.display = 'none';
-    sessionStorage.setItem(SESSION_KEY,'1');
+    sessionStorage.setItem(SESSION_KEY, '1');
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-wrapper').style.display  = 'block';
     initApp();
@@ -809,14 +1150,9 @@ function doLogin() {
 
 function togglePass() {
   const input = document.getElementById('login-pass');
-  const btn = document.getElementById('eye-btn');
-  if (input.type === 'password') {
-    input.type = 'text';
-    btn.textContent = '🙈';
-  } else {
-    input.type = 'password';
-    btn.textContent = '👁';
-  }
+  const btn   = document.getElementById('eye-btn');
+  if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
 }
 
 function cerrarSesion() {
@@ -828,24 +1164,20 @@ function initApp() {
   const dateInput = document.getElementById('reg-fecha');
   if (dateInput) {
     const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    dateInput.value = `${yyyy}-${mm}-${dd}`;
+    dateInput.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   }
-  
+  // Render local inmediato; luego la nube re-renderiza si hay datos nuevos
   renderMaestro();
-  loadFromCloud();
+  loadFromCloud(false);
 }
 
 window.onload = () => {
   if (sessionStorage.getItem(SESSION_KEY) === '1') {
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-wrapper').style.display = 'block';
+    document.getElementById('app-wrapper').style.display  = 'block';
     initApp();
   }
 };
 </script>
-
 </body>
 </html>
