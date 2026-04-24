@@ -95,7 +95,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 .dealer-stat-grid div p:first-child{color:var(--muted);margin-bottom:2px;}
 .dealer-stat-grid div p:last-child{font-weight:700;}
 
-/* LOGIN */
+/* TRANSFER OVERLAY */
+#transfer-overlay{position:fixed;inset:0;z-index:300;background:rgba(5,7,10,0.92);display:none;align-items:center;justify-content:center;padding:20px;}
+#transfer-overlay.show{display:flex;}
+.transfer-box{background:var(--surface);border:1px solid rgba(139,92,246,.5);border-radius:20px;padding:24px;width:100%;max-width:360px;}
+.transfer-title{font-family:'Bebas Neue';font-size:1.4rem;color:var(--purple);letter-spacing:1px;margin-bottom:6px;}
+.transfer-from{font-size:.72rem;color:var(--muted);margin-bottom:18px;}
 #login-screen{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;}
 .login-logo{font-family:'Bebas Neue';font-size:2.8rem;color:var(--gold);letter-spacing:2px;text-align:center;line-height:1;margin-bottom:6px;}
 .login-sub{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:40px;}
@@ -147,7 +152,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <div class="tab active" onclick="switchTab('maestro',this)">Clientes</div>
   <div class="tab" onclick="switchTab('registrar',this)">Cobranza</div>
   <div class="tab" onclick="switchTab('migrar',this);renderDealerSelectMigrar()">Migrar</div>
-  <div class="tab" onclick="switchTab('resumen',this);renderResumen()" style="color:var(--gold);">📊 Admin</div>
+  <div class="tab" onclick="switchTab('resumen',this);limpiarCobrosHuerfanos(false);renderResumen()" style="color:var(--gold);">📊 Admin</div>
 </div>
 
 <!-- ── PANEL CLIENTES ─────────────────────────── -->
@@ -270,8 +275,23 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
   <button class="btn btn-gold" style="margin-top:22px;" onclick="descargarImagenJPG()">📸 DESCARGAR RECIBO</button>
   <button class="btn btn-outline" style="margin-top:10px;" onclick="abrirEdicion()">✏️ EDITAR DATOS</button>
+  <button class="btn btn-outline" style="margin-top:10px;color:var(--purple);border-color:rgba(139,92,246,.35);" onclick="abrirTransferir()">🔀 TRANSFERIR CLIENTE</button>
   <button class="btn btn-outline" style="margin-top:10px;" onclick="cerrarExp()">VOLVER AL INICIO</button>
   <button class="btn btn-outline" style="margin-top:40px;color:var(--red);border-color:rgba(239,68,68,.2);" onclick="borrarCliente()">ELIMINAR CLIENTE</button>
+</div>
+
+<!-- ── OVERLAY TRANSFERIR CLIENTE ────────────────── -->
+<div id="transfer-overlay">
+  <div class="transfer-box">
+    <p class="transfer-title">🔀 TRANSFERIR CLIENTE</p>
+    <p class="transfer-from" id="transfer-from-label"></p>
+    <label class="field-label">Destino</label>
+    <select id="transfer-destino" class="field-input"></select>
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn" style="background:var(--purple);color:#fff;" onclick="ejecutarTransferencia()">CONFIRMAR</button>
+      <button class="btn btn-outline" onclick="cerrarTransferir()">CANCELAR</button>
+    </div>
+  </div>
 </div>
 
 </div><!-- /app-wrapper -->
@@ -677,6 +697,37 @@ function renderMaestro() {
     : directos.map(c => clienteCard(c, false)).join('');
 }
 
+// ─── LIMPIAR COBROS HUÉRFANOS ─────────────────────────────────────────────────
+// Elimina entradas de cobro cuyo cliente ya no existe en la lista vigente.
+// silencioso=false → solo limpia sin toast. silencioso=true → muestra resultado.
+function limpiarCobrosHuerfanos(mostrarToast = false) {
+  let eliminados = 0;
+
+  Object.keys(cobros).forEach(semId => {
+    const antes = cobros[semId].length;
+    cobros[semId] = cobros[semId].filter(p => {
+      // Si tiene clienteId, verificar que ese cliente aún existe
+      if (p.clienteId) return clientes.some(c => c.id === p.clienteId);
+      // Si solo tiene nombre, verificar por nombre normalizado
+      return clientes.some(c => norm(c.nombre) === norm(p.nombre));
+    });
+    eliminados += antes - cobros[semId].length;
+    // Si la semana quedó vacía, eliminarla para no inflar el historial
+    if (cobros[semId].length === 0) delete cobros[semId];
+  });
+
+  if (eliminados > 0) {
+    // Guardar y refrescar sin disparar otro toast de nube encima
+    try { localStorage.setItem(DB, JSON.stringify({ clientes, cobros, dealers })); } catch(e) {}
+    saveToCloud();
+    renderResumen();
+    if (mostrarToast)
+      toast(`${eliminados} registro${eliminados!==1?'s':''} huérfano${eliminados!==1?'s':''} eliminado${eliminados!==1?'s':''} ✅`, 'success');
+  } else {
+    if (mostrarToast) toast('Todo al día, sin registros obsoletos ✅', 'success');
+  }
+}
+
 // ─── RESUMEN ADMIN ────────────────────────────────────────────────────────────
 function computeAdminStats() {
   const hoy       = new Date();
@@ -777,7 +828,10 @@ function renderResumen() {
       <p style="font-family:'Bebas Neue';font-size:1.55rem;color:var(--gold);letter-spacing:1px;line-height:1;">ESTADO GENERAL</p>
       <p style="font-size:.63rem;color:var(--muted);text-transform:capitalize;margin-top:2px;">${hoy}</p>
     </div>
-    <button onclick="renderResumen()" style="background:transparent;border:1px solid var(--border);color:var(--gold);border-radius:10px;padding:6px 14px;font-size:.73rem;font-weight:700;cursor:pointer;white-space:nowrap;">↻ ACTUALIZAR</button>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+      <button onclick="renderResumen()" style="background:transparent;border:1px solid var(--border);color:var(--gold);border-radius:10px;padding:6px 14px;font-size:.73rem;font-weight:700;cursor:pointer;white-space:nowrap;">↻ ACTUALIZAR</button>
+      <button onclick="limpiarCobrosHuerfanos(true)" style="background:transparent;border:1px solid rgba(139,92,246,.45);color:var(--purple);border-radius:10px;padding:6px 14px;font-size:.73rem;font-weight:700;cursor:pointer;white-space:nowrap;">🧹 RECALCULAR</button>
+    </div>
   </div>
 
   <!-- KPIs PRINCIPALES -->
@@ -1120,6 +1174,80 @@ function mostrarBackupPrompt(dataStr) {
   ov.append(msg, ta, btn);
   document.body.appendChild(ov);
   ta.focus(); ta.select();
+}
+
+// ─── TRANSFERIR CLIENTE ───────────────────────────────────────────────────────
+function abrirTransferir() {
+  const c = clientes.find(x => x.id === idActivo);
+  if (!c) return;
+
+  // Etiqueta de origen
+  let origenLabel = 'Actualmente: ';
+  if (c.dealerId) {
+    const d = dealers.find(x => x.id === c.dealerId);
+    origenLabel += `Cliente de ${d ? d.nombre : 'Dealer desconocido'}`;
+  } else {
+    origenLabel += 'Cliente Directo';
+  }
+  document.getElementById('transfer-from-label').textContent = origenLabel;
+
+  // Poblar select de destino (excluye el origen actual)
+  const sel = document.getElementById('transfer-destino');
+  sel.innerHTML = '';
+
+  // Opción directo (solo si ya no es directo)
+  if (c.dealerId) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = '💳 Cliente Directo (sin dealer)';
+    sel.appendChild(opt);
+  }
+
+  // Dealers (excluye el dealer actual del cliente)
+  dealers.forEach(d => {
+    if (d.id === c.dealerId) return;
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = '👤 ' + d.nombre;
+    sel.appendChild(opt);
+  });
+
+  if (sel.options.length === 0) {
+    return toast('No hay destinos disponibles para transferir', 'error');
+  }
+
+  document.getElementById('transfer-overlay').classList.add('show');
+}
+
+function cerrarTransferir() {
+  document.getElementById('transfer-overlay').classList.remove('show');
+}
+
+function ejecutarTransferencia() {
+  const c = clientes.find(x => x.id === idActivo);
+  if (!c) return;
+
+  const destino = document.getElementById('transfer-destino').value;
+  const origenNombre = c.dealerId
+    ? (dealers.find(x => x.id === c.dealerId)?.nombre || 'dealer')
+    : 'Directos';
+
+  let destinoNombre;
+  if (destino === '') {
+    delete c.dealerId;
+    destinoNombre = 'Clientes Directos';
+  } else {
+    const d = dealers.find(x => x.id === destino);
+    if (!d) return toast('Dealer no encontrado', 'error');
+    c.dealerId = destino;
+    destinoNombre = d.nombre;
+  }
+
+  save();
+  cerrarTransferir();
+  // Refrescar detalle para actualizar el tag de dealer
+  verDetalle(idActivo);
+  toast(`${c.nombre} → ${destinoNombre} ✅`, 'success');
 }
 
 // ─── LOGIN / LOGOUT ───────────────────────────────────────────────────────────
