@@ -116,7 +116,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo">CONTROL<br>MAESTRO</div>
   <p class="login-sub">Sistema de Gestión de Préstamos</p>
@@ -135,7 +134,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
-<!-- APP -->
 <div id="app-wrapper">
 <div id="toast"></div>
 
@@ -155,7 +153,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <div class="tab" onclick="switchTab('resumen',this);limpiarCobrosHuerfanos(false);renderResumen()" style="color:var(--gold);">📊 Admin</div>
 </div>
 
-<!-- ── PANEL CLIENTES ─────────────────────────── -->
 <div class="panel active" id="panel-maestro">
   <input type="text" id="busqueda" class="field-input" placeholder="🔍 Buscar por nombre..." oninput="renderMaestro()" maxlength="60">
 
@@ -202,7 +199,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <div id="maestro-lista"></div>
 </div>
 
-<!-- ── PANEL COBRANZA ─────────────────────────── -->
 <div class="panel" id="panel-registrar">
   <div class="box">
     <label class="field-label">Fecha de operación</label>
@@ -214,7 +210,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
-<!-- ── PANEL MIGRAR ───────────────────────────── -->
 <div class="panel" id="panel-migrar">
   <div class="box">
     <h3 style="color:var(--gold);font-family:'Bebas Neue';margin-bottom:10px;font-size:1.5rem;">Importación Masiva</h3>
@@ -233,12 +228,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
-<!-- ── PANEL RESUMEN ADMIN ────────────────────── -->
 <div class="panel" id="panel-resumen">
   <div id="resumen-contenido"></div>
 </div>
 
-<!-- ── MODAL DETALLE CLIENTE ─────────────────── -->
 <div id="modal-exp">
   <div id="edit-form" class="box" style="display:none;border-color:var(--gold);margin-bottom:20px;">
     <label class="field-label">Editar Nombre</label>
@@ -280,7 +273,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   <button class="btn btn-outline" style="margin-top:40px;color:var(--red);border-color:rgba(239,68,68,.2);" onclick="borrarCliente()">ELIMINAR CLIENTE</button>
 </div>
 
-<!-- ── OVERLAY TRANSFERIR CLIENTE ────────────────── -->
 <div id="transfer-overlay">
   <div class="transfer-box">
     <p class="transfer-title">🔀 TRANSFERIR CLIENTE</p>
@@ -294,13 +286,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
   </div>
 </div>
 
-</div><!-- /app-wrapper -->
-
-<script>
+</div><script>
 // ─── CLOUD SYNC ───────────────────────────────────────────────────────────────
 const CLOUD_URL = 'https://script.google.com/macros/s/AKfycby6mA0J9Grkti2sOVQpgXVl_EXH-XE4kmLkgoCEPLJadBxEeKI0ILZw7vdRp06DdnU5/exec';
 
-// FIX: parámetro manual para confirmar antes de sobreescribir datos locales
 async function loadFromCloud(manual = false) {
   if (manual && clientes.length > 0) {
     if (!confirm('Esto reemplazará los datos locales con la versión de la nube.\n¿Continuar?')) return;
@@ -331,7 +320,6 @@ function saveToCloud() {
     body: dataStr,
     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
   })
-  // FIX: toast diferido para no pisar el toast de la acción principal
   .then(() => setTimeout(() => toast('☁️ Nube actualizada', 'info'), 2000))
   .catch(e => { console.error('Error guardando en la nube:', e); toast('Sin conexión: cambio solo local', 'error'); });
 }
@@ -343,7 +331,6 @@ function norm(s) {
 
 const fmt = n => (!isFinite(n)||isNaN(n)) ? '$-' : '$'+Math.round(n).toLocaleString('es-MX');
 
-// FIX: type vacío por defecto → sin color especial (antes era 'success' en neutral)
 function toast(msg, type='') {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -357,7 +344,6 @@ function toggleElement(id) {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-// FIX: unicidad reforzada con 5 dígitos aleatorios
 function generarID(pre='ID') {
   return pre+'-'+Date.now()+'-'+Math.floor(Math.random()*99999);
 }
@@ -372,6 +358,28 @@ function loadData() {
     const d = JSON.parse(raw);
     if (!d.dealers) d.dealers = [];
     if (!d.cobros)  d.cobros  = {};
+
+    // MIGRACIÓN: Asegurar que todos los cobros usen ID y eliminar huérfanos antiguos
+    let requiereGuardado = false;
+    Object.keys(d.cobros).forEach(semId => {
+      let cobrosValidos = [];
+      d.cobros[semId].forEach(p => {
+        if (!p.clienteId) {
+          const cAsociado = d.clientes.find(c => norm(c.nombre) === norm(p.nombre));
+          if (cAsociado) {
+            p.clienteId = cAsociado.id;
+            cobrosValidos.push(p);
+            requiereGuardado = true;
+          }
+        } else {
+          cobrosValidos.push(p);
+        }
+      });
+      d.cobros[semId] = cobrosValidos;
+      if (d.cobros[semId].length === 0) delete d.cobros[semId];
+    });
+
+    if (requiereGuardado) localStorage.setItem(DB, JSON.stringify(d));
     return d;
   } catch(e) {
     toast('Error al leer datos', 'error');
@@ -416,7 +424,6 @@ function crearDealer() {
   toast('Dealer creado', 'success');
 }
 
-// FIX: confirmación incluye nombre, y clientes quedan como directos (cobros se conservan)
 function borrarDealer(dealerId) {
   const d = dealers.find(x => x.id === dealerId);
   const nombre = d ? d.nombre : 'este dealer';
@@ -464,7 +471,6 @@ function crearCliente() {
   if (!n)       return toast('El nombre es obligatorio', 'error');
   if (!m||m<=0) return toast('El monto debe ser mayor a 0', 'error');
   if (!p||p<=0) return toast('El pago semanal es obligatorio', 'error');
-  // FIX: validar nombres duplicados
   if (clientes.some(c => norm(c.nombre) === norm(n)))
     return toast('Ya existe un cliente con ese nombre', 'error');
 
@@ -483,7 +489,6 @@ function crearCliente() {
 }
 
 // ─── COBROS ───────────────────────────────────────────────────────────────────
-// FIX: semana con zero-padding para ordenamiento correcto (W09 antes de W10)
 function getWeekID(d) {
   d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -512,24 +517,19 @@ function procesarCobros() {
     const pagado = l.includes('✅');
 
     if (!nom) return;
+    if (pagado && (!monto || monto <= 0)) sinMonto.push(nom);
 
-    // FIX: advertir si está marcado pagado pero sin monto
-    if (pagado && (!monto || monto <= 0)) {
-      sinMonto.push(nom);
-    }
-
-    // FIX: asociar clienteId para búsqueda robusta por ID (no solo nombre)
     const clienteEncontrado = clientes.find(c => norm(c.nombre) === norm(nom));
-    if (!clienteEncontrado) noCoinciden.push(nom);
-
-    if (cobros[sId].some(p => norm(p.nombre) === norm(nom))) duplicados++;
-    cobros[sId] = cobros[sId].filter(p => norm(p.nombre) !== norm(nom));
-
-    const entrada = { nombre: nom, monto, pagado, fecha: f };
-    if (clienteEncontrado) {
-      entrada.clienteId = clienteEncontrado.id;
-      coinciden++;
+    if (!clienteEncontrado) {
+      noCoinciden.push(nom);
+      return; 
     }
+
+    if (cobros[sId].some(p => p.clienteId === clienteEncontrado.id)) duplicados++;
+    cobros[sId] = cobros[sId].filter(p => p.clienteId !== clienteEncontrado.id);
+
+    const entrada = { nombre: nom, monto, pagado, fecha: f, clienteId: clienteEncontrado.id };
+    coinciden++;
     cobros[sId].push(entrada);
   });
 
@@ -580,7 +580,6 @@ function crearDealerMigrar() {
   toast('Dealer creado y seleccionado ✅', 'success');
 }
 
-// FIX: detección de duplicados en migración masiva
 function ejecutarMigracion() {
   const raw = document.getElementById('migrar-area').value.trim();
   if (!raw) return;
@@ -591,7 +590,6 @@ function ejecutarMigracion() {
     if (d.length < 2) return;
     const m = parseFloat(d[1]), t = parseFloat(d[2])||0, p = parseFloat(d[3])||0;
     if (!m||m<=0||p<=0) return;
-    // FIX: saltar si ya existe un cliente con ese nombre
     if (clientes.some(c => norm(c.nombre) === norm(d[0]))) { dup++; return; }
     const obj = {
       id: generarID(), nombre: d[0], telefono: '',
@@ -612,13 +610,11 @@ function ejecutarMigracion() {
 }
 
 // ─── STATUS ───────────────────────────────────────────────────────────────────
-// FIX: busca por clienteId si está disponible; fallback a nombre para datos anteriores
 function obtenerStatus(c) {
   let nuevas = 0;
   Object.values(cobros).forEach(sem => {
     sem.forEach(p => {
-      const match = p.clienteId ? p.clienteId === c.id : norm(p.nombre) === norm(c.nombre);
-      if (match && p.pagado) nuevas++;
+      if (p.clienteId === c.id && p.pagado) nuevas++;
     });
   });
   const pagadas  = (c.semanasBase || 0) + nuevas;
@@ -698,31 +694,21 @@ function renderMaestro() {
 }
 
 // ─── LIMPIAR COBROS HUÉRFANOS ─────────────────────────────────────────────────
-// Elimina entradas de cobro cuyo cliente ya no existe en la lista vigente.
-// silencioso=false → solo limpia sin toast. silencioso=true → muestra resultado.
 function limpiarCobrosHuerfanos(mostrarToast = false) {
   let eliminados = 0;
-
   Object.keys(cobros).forEach(semId => {
     const antes = cobros[semId].length;
-    cobros[semId] = cobros[semId].filter(p => {
-      // Si tiene clienteId, verificar que ese cliente aún existe
-      if (p.clienteId) return clientes.some(c => c.id === p.clienteId);
-      // Si solo tiene nombre, verificar por nombre normalizado
-      return clientes.some(c => norm(c.nombre) === norm(p.nombre));
-    });
+    // Mantiene solo los cobros cuyo clienteId exista en el arreglo de clientes
+    cobros[semId] = cobros[semId].filter(p => clientes.some(c => c.id === p.clienteId));
     eliminados += antes - cobros[semId].length;
-    // Si la semana quedó vacía, eliminarla para no inflar el historial
     if (cobros[semId].length === 0) delete cobros[semId];
   });
 
   if (eliminados > 0) {
-    // Guardar y refrescar sin disparar otro toast de nube encima
     try { localStorage.setItem(DB, JSON.stringify({ clientes, cobros, dealers })); } catch(e) {}
     saveToCloud();
     renderResumen();
-    if (mostrarToast)
-      toast(`${eliminados} registro${eliminados!==1?'s':''} huérfano${eliminados!==1?'s':''} eliminado${eliminados!==1?'s':''} ✅`, 'success');
+    if (mostrarToast) toast(`${eliminados} registro(s) huérfano(s) eliminado(s) ✅`, 'success');
   } else {
     if (mostrarToast) toast('Todo al día, sin registros obsoletos ✅', 'success');
   }
@@ -747,13 +733,11 @@ function computeAdminStats() {
     else liquidados++;
   });
 
-  // Esta semana
   const semCobros  = cobros[semActual] || [];
   const semPagados = semCobros.filter(p => p.pagado);
   const semMonto   = semPagados.reduce((acc, p) => acc + (p.monto || 0), 0);
   const semNoPag   = semCobros.filter(p => !p.pagado);
 
-  // Este mes (por fecha del cobro)
   let mesMonto = 0;
   Object.values(cobros).forEach(sem => {
     sem.forEach(p => {
@@ -762,7 +746,6 @@ function computeAdminStats() {
     });
   });
 
-  // Últimas 6 semanas registradas (ordenadas desc)
   const todasSemanas = Object.keys(cobros).sort((a, b) => b > a ? 1 : -1).slice(0, 6);
   const semRecientes = todasSemanas.map(semId => {
     const pagos   = cobros[semId] || [];
@@ -771,7 +754,6 @@ function computeAdminStats() {
     return { semId, total: pagos.length, pagados: pagados.length, monto };
   });
 
-  // Por dealer — incluye detalle de semana actual
   const dealerStats = dealers.map(d => {
     const subs = clientes.filter(c => c.dealerId === d.id);
     let capital = 0, cobrado = 0, pendiente = 0;
@@ -781,14 +763,11 @@ function computeAdminStats() {
       cobrado   += st.pagado;
       pendiente += st.restante;
     });
-    const semD    = semCobros.filter(p => p.clienteId
-      ? subs.some(c => c.id === p.clienteId)
-      : subs.some(c => norm(c.nombre) === norm(p.nombre)));
+    const semD    = semCobros.filter(p => subs.some(c => c.id === p.clienteId));
     const semPagD = semD.filter(p => p.pagado).length;
     return { id: d.id, nombre: d.nombre, count: subs.length, capital, cobrado, pendiente, semPag: semPagD, semTot: semD.length };
   });
 
-  // Directos
   const dirList = clientes.filter(c => !c.dealerId);
   let dirCapital = 0, dirCobrado = 0, dirPendiente = 0;
   dirList.forEach(c => {
@@ -797,12 +776,9 @@ function computeAdminStats() {
     dirCobrado  += st.pagado;
     dirPendiente += st.restante;
   });
-  const semDir    = semCobros.filter(p => p.clienteId
-    ? dirList.some(c => c.id === p.clienteId)
-    : dirList.some(c => norm(c.nombre) === norm(p.nombre)));
+  const semDir    = semCobros.filter(p => dirList.some(c => c.id === p.clienteId));
   const semPagDir = semDir.filter(p => p.pagado).length;
 
-  // Clientes que no pagaron esta semana (con nombre)
   const noPagaronNombres = semNoPag.map(p => p.nombre);
 
   return {
@@ -822,7 +798,6 @@ function renderResumen() {
   const mesLabel = new Date().toLocaleDateString('es-MX', { month:'long', year:'numeric' });
 
   const html = `
-  <!-- ENCABEZADO -->
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin:6px 0 16px;">
     <div>
       <p style="font-family:'Bebas Neue';font-size:1.55rem;color:var(--gold);letter-spacing:1px;line-height:1;">ESTADO GENERAL</p>
@@ -834,7 +809,6 @@ function renderResumen() {
     </div>
   </div>
 
-  <!-- KPIs PRINCIPALES -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <p class="kpi-label">💰 Capital Prestado</p>
@@ -858,7 +832,6 @@ function renderResumen() {
     </div>
   </div>
 
-  <!-- BARRA DE PROGRESO GLOBAL -->
   <div class="box" style="padding:16px;margin-bottom:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
       <span style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;">Progreso Global</span>
@@ -874,7 +847,6 @@ function renderResumen() {
     </div>
   </div>
 
-  <!-- ESTA SEMANA -->
   <div class="box" style="padding:16px;margin-bottom:14px;border-color:rgba(240,180,41,0.35);">
     <p style="font-family:'Bebas Neue';font-size:1.15rem;color:var(--gold);margin-bottom:12px;">⚡ SEMANA ${semLabel} — COBROS</p>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:${s.noPagaronNombres.length>0?'14px':'0'};">
@@ -899,7 +871,6 @@ function renderResumen() {
     ${s.semTotal === 0 ? '<p style="text-align:center;color:var(--muted);font-size:.75rem;padding:4px 0;">Sin registros esta semana aún</p>' : ''}
   </div>
 
-  <!-- HISTORIAL SEMANAS RECIENTES -->
   ${s.semRecientes.length > 0 ? `
   <div class="box" style="padding:16px;margin-bottom:14px;">
     <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--muted);letter-spacing:1px;margin-bottom:10px;">📈 SEMANAS RECIENTES</p>
@@ -915,7 +886,6 @@ function renderResumen() {
     }).join('')}
   </div>` : ''}
 
-  <!-- POR DEALER -->
   ${dealers.length > 0 ? `
   <div class="box" style="padding:16px;margin-bottom:14px;">
     <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--blue);letter-spacing:1px;margin-bottom:12px;">👥 POR DEALER</p>
@@ -933,7 +903,6 @@ function renderResumen() {
     </div>`).join('')}
   </div>` : ''}
 
-  <!-- DIRECTOS -->
   <div class="box" style="padding:16px;margin-bottom:14px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <p style="font-family:'Bebas Neue';font-size:1.1rem;color:var(--gold);">💳 CLIENTES DIRECTOS</p>
@@ -962,7 +931,6 @@ function verDetalle(id) {
   document.getElementById('exp-pagado').textContent   = fmt(st.pagado);
   document.getElementById('exp-restante').textContent = fmt(st.restante);
 
-  // Teléfono
   const telEl = document.getElementById('exp-tel');
   if (c.telefono) {
     telEl.textContent = '📞 '+c.telefono;
@@ -971,7 +939,6 @@ function verDetalle(id) {
     telEl.style.display = 'none';
   }
 
-  // Tag dealer
   const tagEl = document.getElementById('exp-dealer-tag');
   if (c.dealerId) {
     const d = dealers.find(x => x.id === c.dealerId);
@@ -987,11 +954,9 @@ function verDetalle(id) {
        </div>`
     : '';
 
-  // FIX: match por clienteId cuando disponible, fallback a nombre
   Object.keys(cobros).sort((a, b) => b > a ? 1 : -1).forEach(s => {
     cobros[s].forEach(p => {
-      const match = p.clienteId ? p.clienteId === c.id : norm(p.nombre) === norm(c.nombre);
-      if (match) {
+      if (p.clienteId === c.id) {
         const semNum = s.split('-W')[1];
         const montoEl = p.pagado
           ? `<span style="color:var(--green);font-weight:700;">+ ${fmt(p.monto)} ✅</span>`
@@ -1044,18 +1009,14 @@ function cerrarExp() {
   document.getElementById('edit-form').style.display = 'none';
 }
 
-// FIX: confirmación con nombre + limpieza de cobros huérfanos
 function borrarCliente() {
   const c = clientes.find(x => x.id === idActivo);
   if (!c) return;
   if (!confirm(`¿Eliminar a "${c.nombre}" y todos sus registros de cobro?\nEsta acción no se puede deshacer.`)) return;
 
-  // Limpiar cobros asociados (por clienteId o por nombre)
+  // Limpiar cobros asociados ESTRICTAMENTE por el ID único
   Object.keys(cobros).forEach(semId => {
-    cobros[semId] = cobros[semId].filter(p => {
-      if (p.clienteId) return p.clienteId !== idActivo;
-      return norm(p.nombre) !== norm(c.nombre);
-    });
+    cobros[semId] = cobros[semId].filter(p => p.clienteId !== idActivo);
     if (cobros[semId].length === 0) delete cobros[semId];
   });
 
@@ -1063,7 +1024,7 @@ function borrarCliente() {
   if (idx !== -1) clientes.splice(idx, 1);
   save();
   cerrarExp();
-  toast('Cliente eliminado');
+  toast('Cliente eliminado exitosamente');
 }
 
 // ─── DESCARGA / BACKUP ────────────────────────────────────────────────────────
@@ -1074,7 +1035,6 @@ function descargarImagenJPG() {
     const link = document.createElement('a');
     link.download = `Recibo_${document.getElementById('exp-nombre').textContent.replace(/\s/g,'_')}.jpg`;
     link.href = canvas.toDataURL('image/jpeg', .85);
-    // FIX: agregar al DOM para compatibilidad con Safari/móviles
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1139,7 +1099,6 @@ async function descargarZip(dealerId) {
   const link = document.createElement('a');
   link.href = URL.createObjectURL(content);
   link.download = nombreZip;
-  // FIX: agregar al DOM antes de click (Safari/móviles)
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -1181,7 +1140,6 @@ function abrirTransferir() {
   const c = clientes.find(x => x.id === idActivo);
   if (!c) return;
 
-  // Etiqueta de origen
   let origenLabel = 'Actualmente: ';
   if (c.dealerId) {
     const d = dealers.find(x => x.id === c.dealerId);
@@ -1191,11 +1149,9 @@ function abrirTransferir() {
   }
   document.getElementById('transfer-from-label').textContent = origenLabel;
 
-  // Poblar select de destino (excluye el origen actual)
   const sel = document.getElementById('transfer-destino');
   sel.innerHTML = '';
 
-  // Opción directo (solo si ya no es directo)
   if (c.dealerId) {
     const opt = document.createElement('option');
     opt.value = '';
@@ -1203,7 +1159,6 @@ function abrirTransferir() {
     sel.appendChild(opt);
   }
 
-  // Dealers (excluye el dealer actual del cliente)
   dealers.forEach(d => {
     if (d.id === c.dealerId) return;
     const opt = document.createElement('option');
@@ -1245,14 +1200,11 @@ function ejecutarTransferencia() {
 
   save();
   cerrarTransferir();
-  // Refrescar detalle para actualizar el tag de dealer
   verDetalle(idActivo);
   toast(`${c.nombre} → ${destinoNombre} ✅`, 'success');
 }
 
 // ─── LOGIN / LOGOUT ───────────────────────────────────────────────────────────
-// FIX: credenciales ofuscadas — no texto plano en código fuente.
-// Para producción real, la validación debe hacerse del lado del servidor.
 const _k1 = 'Q29udHJvbE1hZXN0cm8=';
 const _k2 = 'Q29udHJvbE1hZXN0cm8kMjAyNg==';
 const SESSION_KEY = 'cm_session';
@@ -1294,7 +1246,6 @@ function initApp() {
     const today = new Date();
     dateInput.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
   }
-  // Render local inmediato; luego la nube re-renderiza si hay datos nuevos
   renderMaestro();
   loadFromCloud(false);
 }
